@@ -31,20 +31,20 @@ public class FilmController {
 
 	@PostMapping
 	public Film create(@RequestBody Film film) {
-		log.debug("Request: {}", film);
+		log.info("Request: {}", film);
 		// проверяем выполнение необходимых условий
 		validateFilm(film);
 		// формируем дополнительные данные
 		film.setId(getNextId());
 		// сохраняем новую публикацию в памяти приложения
 		films.put(film.getId(), film);
-		log.debug("List of all films: {}", films.values());
+		log.info("FilmId: {}", film.getId());
 		return film;
 	}
 
 	@PutMapping
 	public Film update(@RequestBody Film newFilm) {
-		log.debug("Request: {}", newFilm);
+		log.info("Request: {}", newFilm);
 		// проверяем необходимые условия
 		if (newFilm.getId() == null) {
 			log.warn("Film have not got id: {}", newFilm);
@@ -58,7 +58,7 @@ public class FilmController {
 			if (newFilm.getName() != null) oldFilm.setName(newFilm.getName());
 			if (newFilm.getReleaseDate() != null) oldFilm.setReleaseDate(newFilm.getReleaseDate());
 			if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
-			log.debug("Update Film: {}", oldFilm);
+			log.info("Update Film: {}", oldFilm);
 			return oldFilm;
 		}
 		log.warn("Film with this id, does not exist: {}", films.values());
@@ -88,7 +88,7 @@ public class FilmController {
 			log.warn("Film date not correct: {}", film.getReleaseDate());
 			throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
 		}
-		if (film.getDuration() != null && film.getDuration() < 0) {
+		if (film.getDuration() != null && film.getDuration() <= 0) {
 			log.warn("Film duration not correct: {}", film.getDuration());
 			throw new ValidationException("продолжительность фильма должна быть положительным числом");
 		}

@@ -30,7 +30,7 @@ public class UserController {
 
 	@PostMapping
 	public User create(@Valid @RequestBody User user) {
-		log.debug("Request: {}", user);
+		log.info("Request: {}", user);
 		// проверяем выполнение необходимых условий
 		validateUser(user);
 		// формируем дополнительные данные
@@ -38,12 +38,13 @@ public class UserController {
 		if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
 		// сохраняем новую публикацию в памяти приложения
 		users.put(user.getId(), user);
-		log.debug("List of all films: {}", users.values());
+		log.info("UserId: {}", user.getId());
 		return user;
 	}
 
 	@PutMapping
 	public User update(@Valid @RequestBody User newUser) {
+		log.info("Request: {}", newUser);
 		// проверяем необходимые условия
 		if (newUser.getId() == null) {
 			log.warn("User have not got id: {}", newUser);
@@ -57,7 +58,7 @@ public class UserController {
 			if (newUser.getBirthday() != null) oldUser.setBirthday(newUser.getBirthday());
 			oldUser.setEmail(newUser.getEmail());
 			oldUser.setLogin(newUser.getLogin());
-			log.debug("Update user: {}", oldUser);
+			log.info("Update user: {}", oldUser);
 			return oldUser;
 		}
 		log.warn("User with this id, does not exist: {}", users.values());
