@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -24,34 +21,32 @@ public class InMemoryUserStorage implements UserStorage {
 		return users.values();
 	}
 
-	@Override
-	public Collection<User> getFriends(Long id) {
+	public User getUser(Long id) {
 		if (!users.containsKey(id)) {
-			log.warn("Пользователь с id = {} не найден", id);
 			throw new NotFoundException("Пользователь с id = " + id + " не найден");
 		}
-		Set<Long> friendsId = users.get(id).getFriends();
+		return users.get(id);
+	}
 
-		return users.values().stream()
-				.filter(user -> friendsId.stream()
-						.anyMatch(friendId -> friendId.equals(user.getId())))
+	@Override
+	public Collection<User> getFriends(Long id) {
+		getUser(id);
+		return users.get(id).getFriends().stream()
+				.map(users::get)
+				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public Collection<User> getMutualFriends(Long id, Long otherId) {
-		if (!users.containsKey(id) || !users.containsKey(otherId)) {
-			log.warn("Пользователь с id = {} не найден", id);
-			throw new NotFoundException("Пользователь с id = " + id + " не найден");
-		}
+		getUser(id);
+		getUser(otherId);
 
-		Collection<User> userFriends = getFriends(id);
-
-		Set<Long> otherfriendsId = users.get(otherId).getFriends();
-
-		return userFriends.stream()
-				.filter(user -> otherfriendsId.stream()
-						.anyMatch(otherfriendId -> otherfriendId.equals(user.getId())))
+		return users.get(id).getFriends().stream()
+				.filter(friendId -> users.get(otherId).getFriends().stream()
+					.anyMatch(otherFriendId -> otherFriendId.equals(friendId)))
+				.map(users::get)
+				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
 
@@ -68,7 +63,6 @@ public class InMemoryUserStorage implements UserStorage {
 	public void removeUser(Long id) {
 		if (users.containsKey(id)) users.remove(id);
 		else {
-			log.warn("Пользователь с id = {} не найден", id);
 			throw new NotFoundException("Пользователь с id = " + id + " не найден");
 		}
 	}
@@ -77,7 +71,6 @@ public class InMemoryUserStorage implements UserStorage {
 	public User changeUser(User newUser) {
 		// проверяем необходимые условия
 		if (newUser.getId() == null) {
-			log.warn("Id должен быть указан");
 			throw new ValidationException("Id должен быть указан");
 		}
 		if (users.containsKey(newUser.getId())) {
@@ -89,7 +82,6 @@ public class InMemoryUserStorage implements UserStorage {
 			oldUser.setLogin(newUser.getLogin());
 			return oldUser;
 		} else {
-			log.warn("Пользователь с id = {} не найден", newUser.getId());
 			throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
 		}
 	}
@@ -102,7 +94,6 @@ public class InMemoryUserStorage implements UserStorage {
 			user.getFriends().add(friendId);
 			friend.getFriends().add(userId);
 		} else {
-			log.warn("Пользователь не найден");
 			throw new NotFoundException("Пользователь не найден");
 		}
 	}
@@ -115,7 +106,6 @@ public class InMemoryUserStorage implements UserStorage {
 			user.getFriends().remove(friendId);
 			friend.getFriends().remove(userId);
 		} else {
-			log.warn("Пользователь не найден");
 			throw new NotFoundException("Пользователь не найден");
 		}
 	}

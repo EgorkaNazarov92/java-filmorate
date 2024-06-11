@@ -12,7 +12,7 @@ import java.util.Collection;
 
 @Service
 public class UserService {
-	private final InMemoryUserStorage inMemoryUserStorage;
+	protected final InMemoryUserStorage inMemoryUserStorage;
 
 	private static final Logger log = LoggerFactory.getLogger(UserService.class);
 

@@ -36,7 +36,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 	public void removeFilm(Long id) {
 		if (films.containsKey(id)) films.remove(id);
 		else {
-			log.warn("Film have not got id: {}", id);
 			throw new NotFoundException("Фильм с id = " + id + " не найден");
 		}
 
@@ -58,7 +57,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 			if (newFilm.getDuration() != null) oldFilm.setDuration(newFilm.getDuration());
 			return oldFilm;
 		} else {
-			log.warn("Фильм с id = {} не найден", newFilm.getId());
 			throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
 		}
 	}
@@ -66,7 +64,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 	@Override
 	public void addLike(Long filmId, Long userId) {
 		if (!films.containsKey(filmId)) {
-			log.warn("Фильм с id = {} не найден", filmId);
 			throw new NotFoundException("Фильм с id = " + filmId + " не найден");
 		}
 		films.get(filmId).getLikes().add(userId);
@@ -75,7 +72,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 	@Override
 	public void deleteLike(Long filmId, Long userId) {
 		if (!films.containsKey(filmId)) {
-			log.warn("Фильм с id = {} не найден", filmId);
 			throw new NotFoundException("Фильм с id = " + filmId + " не найден");
 		}
 		films.get(filmId).getLikes().remove(userId);
