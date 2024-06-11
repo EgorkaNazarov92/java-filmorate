@@ -42,9 +42,10 @@ public class InMemoryUserStorage implements UserStorage {
 		getUser(id);
 		getUser(otherId);
 
+		Set<Long> otherFriendsId = users.get(otherId).getFriends();
+
 		return users.get(id).getFriends().stream()
-				.filter(friendId -> users.get(otherId).getFriends().stream()
-					.anyMatch(otherFriendId -> otherFriendId.equals(friendId)))
+				.filter(otherFriendsId::contains)
 				.map(users::get)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
