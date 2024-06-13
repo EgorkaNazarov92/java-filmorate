@@ -48,7 +48,7 @@ class FilmorateApplicationTests {
 		film.setDuration(1000);
 		film.setReleaseDate(LocalDate.now());
 		filmController.create(film);
-		Collection<Film> films = filmController.findAll();
+		Collection<Film> films = filmController.getFilms();
 		Optional<Film> optFilm = films.stream().findFirst();
 		assertTrue(optFilm.isPresent());
 		Film returnFilm = optFilm.get();
@@ -93,31 +93,31 @@ class FilmorateApplicationTests {
 	@Test
 	public void testAddEmptyUser() {
 		User user = new User("", "");
-		Assertions.assertThrows(ConstraintViolationException.class, () -> userController.create(user));
+		Assertions.assertThrows(ConstraintViolationException.class, () -> userController.addUser(user));
 	}
 
 	@Test
 	public void testAddEmptyEmailUser() {
 		User user = new User("", "testLogin");
-		Assertions.assertThrows(ConstraintViolationException.class, () -> userController.create(user));
+		Assertions.assertThrows(ConstraintViolationException.class, () -> userController.addUser(user));
 	}
 
 	@Test
 	public void testAddUncorrectEmailUser() {
 		User user = new User("asdasd", "testLogin");
-		Assertions.assertThrows(ConstraintViolationException.class, () -> userController.create(user));
+		Assertions.assertThrows(ConstraintViolationException.class, () -> userController.addUser(user));
 	}
 
 	@Test
 	public void testAddUncorrectLoginUser() {
 		User user = new User("asdasd@mail.ru", "test Login");
-		Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+		Assertions.assertThrows(ValidationException.class, () -> userController.addUser(user));
 	}
 
 	@Test
 	public void testAddEmptyNameUser() {
 		User user = new User("asdasd@mail.ru", "testLogin");
-		user = userController.create(user);
+		user = userController.addUser(user);
 		assertEquals(user.getLogin(), user.getName());
 	}
 
@@ -125,6 +125,6 @@ class FilmorateApplicationTests {
 	public void testAddUncorrectBirthdayUser() {
 		User user = new User("asdasd@mail.ru", "testLogin");
 		user.setBirthday(LocalDate.now().plusDays(1));
-		Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+		Assertions.assertThrows(ValidationException.class, () -> userController.addUser(user));
 	}
 }
