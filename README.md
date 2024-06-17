@@ -20,9 +20,9 @@ Template repository for Filmorate project.
     <br>
     Для получения списка друзей потребуется выполнить выборку:  
     ```SELECT FRIEND_USER_ID, CONFIRMED FROM FRIENDS WHERE USER_ID = {userId};```  
-<br>
+    <br>
     Добавить пользователя в друзья:
-   ```
+    ```
         IF EXISTS (SELECT USER_ID FROM FRIENDS  WHERE USER_ID = {friendId} AND FRIENDS_USER_ID = {userId})
             UPDATE FRIENDS SET CONFIRMED = TRUE  WHERE USER_ID = {friendId} AND FRIENDS_USER_ID = {userId};
             INSERT INTO FRIENDS (USER_ID, FRIEND_USER_ID, CONFIRMED) VALUES ({userId}, {friendId}, TRUE);
