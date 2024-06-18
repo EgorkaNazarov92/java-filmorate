@@ -1,6 +1,6 @@
 # java-filmorate
 Template repository for Filmorate project.  
-![ER диаграмма проекта](ERD.png)  
+![ER диаграмма проекта](ERD.png2)  
 Проект будет состоять из 7 таблиц:
 1. USERS - информация по пользователю, PK - USER_ID.  
     <br>
