@@ -2,63 +2,76 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-	protected final InMemoryUserStorage inMemoryUserStorage;
+	@Autowired
+	@Qualifier("UserDbStorage")
+	private UserStorage userStorage;
 
 	private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
-	public UserService(InMemoryUserStorage inMemoryUserStorage) {
-		this.inMemoryUserStorage = inMemoryUserStorage;
+
+	public Collection<UserDto> getUsers() {
+		return userStorage.getUsers()
+				.stream()
+				.map(UserMapper::mapToUserDto)
+				.collect(Collectors.toList());
 	}
 
-	public Collection<User> getUsers() {
-		return inMemoryUserStorage.getUsers();
+	public Collection<UserDto> getFriends(Long id) {
+		return userStorage.getFriends(id)
+				.stream()
+				.map(UserMapper::mapToUserDto)
+				.collect(Collectors.toList());
 	}
 
-	public Collection<User> getFriends(Long id) {
-		return inMemoryUserStorage.getFriends(id);
+	public Collection<UserDto> getMutualFriends(Long id, Long otherId) {
+		return userStorage.getMutualFriends(id, otherId)
+				.stream()
+				.map(UserMapper::mapToUserDto)
+				.collect(Collectors.toList());
 	}
 
-	public Collection<User> getMutualFriends(Long id, Long otherId) {
-		return inMemoryUserStorage.getMutualFriends(id, otherId);
-	}
-
-	public User addUser(User user) {
+	public UserDto addUser(User user) {
 		log.info("Request: {}", user);
 		// проверяем выполнение необходимых условий
 		validateUser(user);
-		user = inMemoryUserStorage.addUser(user);
+		user = userStorage.addUser(user);
 		log.info("UserId: {}", user.getId());
-		return user;
+		return UserMapper.mapToUserDto(user);
 	}
 
-	public User changeUser(User newUser) {
+	public UserDto changeUser(User newUser) {
 		log.info("Request: {}", newUser);
 		validateUser(newUser);
-		newUser = inMemoryUserStorage.changeUser(newUser);
+		newUser = userStorage.changeUser(newUser);
 		log.info("Update user: {}", newUser);
-		return newUser;
+		return UserMapper.mapToUserDto(newUser);
 	}
 
 	public void removeUser(Long id) {
-		inMemoryUserStorage.removeUser(id);
+		userStorage.removeUser(id);
 	}
 
 	public void addFriend(Long userId, Long friendId) {
-		inMemoryUserStorage.addFriend(userId, friendId);
+		userStorage.addFriend(userId, friendId);
 	}
 
 	public void deleteFriend(Long userId, Long friendId) {
-		inMemoryUserStorage.deleteFriend(userId, friendId);
+		userStorage.deleteFriend(userId, friendId);
 	}
 
 

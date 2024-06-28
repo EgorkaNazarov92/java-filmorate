@@ -1,13 +1,15 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -15,22 +17,30 @@ import java.util.Collection;
 import java.util.Comparator;
 
 @Service
-@RequiredArgsConstructor
 public class FilmService {
-	private final InMemoryFilmStorage inMemoryFilmStorage;
-	private final UserService userService;
+	@Autowired
+	@Qualifier("FilmDbStorage")
+	private FilmStorage filmStorage;
+	@Autowired
+	@Qualifier("UserDbStorage")
+	private UserStorage userStorage;
 
 	private static final LocalDate startReleaseDate = LocalDate
 			.parse("28.12.1895", DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 
 	private static final Logger log = LoggerFactory.getLogger(FilmController.class);
 
+
+	public Film getFilm(Long id) {
+		return filmStorage.getFilm(id);
+	}
+
 	public Collection<Film> getFilms() {
-		return inMemoryFilmStorage.getFilms();
+		return filmStorage.getFilms();
 	}
 
 	public Collection<Film> getPopular(int count) {
-		Collection<Film> popularFilms = inMemoryFilmStorage.getFilms().stream()
+		Collection<Film> popularFilms = filmStorage.getFilms().stream()
 				.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
 				.toList();
 		if (popularFilms.size() < count) count = popularFilms.size();
@@ -42,7 +52,7 @@ public class FilmService {
 		// проверяем выполнение необходимых условий
 		validateFilm(film);
 		// сохраняем новую публикацию в памяти приложения
-		film = inMemoryFilmStorage.addFilm(film);
+		film = filmStorage.addFilm(film);
 		log.info("FilmId: {}", film.getId());
 		return film;
 	}
@@ -50,23 +60,23 @@ public class FilmService {
 	public Film changeFilm(Film newFilm) {
 		log.info("Request: {}", newFilm);
 		validateFilm(newFilm);
-		newFilm = inMemoryFilmStorage.changeFilm(newFilm);
+		newFilm = filmStorage.changeFilm(newFilm);
 		log.info("Update Film: {}", newFilm);
 		return newFilm;
 	}
 
 	public void removeFilm(Long id) {
-		inMemoryFilmStorage.removeFilm(id);
+		filmStorage.removeFilm(id);
 	}
 
 	public void addLike(Long filmId, Long userId) {
-		userService.inMemoryUserStorage.getUser(userId);
-		inMemoryFilmStorage.addLike(filmId, userId);
+		userStorage.getUser(userId);
+		filmStorage.addLike(filmId, userId);
 	}
 
 	public void deleteLike(Long filmId, Long userId) {
-		userService.inMemoryUserStorage.getUser(userId);
-		inMemoryFilmStorage.deleteLike(filmId, userId);
+		userStorage.getUser(userId);
+		filmStorage.deleteLike(filmId, userId);
 	}
 
 
