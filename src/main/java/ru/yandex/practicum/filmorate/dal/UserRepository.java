@@ -48,7 +48,7 @@ public class UserRepository extends BaseRepository<User> {
 				user.getEmail(),
 				user.getLogin(),
 				user.getName(),
-				Date.valueOf(user.getBirthday())
+				user.getBirthday() == null ? null : Date.valueOf(user.getBirthday())
 		);
 		user.setId(id);
 		return user;
@@ -85,7 +85,7 @@ public class UserRepository extends BaseRepository<User> {
 	}
 
 	public void updateFriend(Long userId, Long friendId, Boolean confirmed) {
-		update(UPDATE_FRIEND_QUERY, friendId, userId, true);
+		update(UPDATE_FRIEND_QUERY, friendId, userId, confirmed);
 	}
 
 	public void deleteFriend(Long userId, Long friendId) {

@@ -11,14 +11,14 @@ import java.util.Optional;
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
 	private static final String FIND_ALL_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME FROM FILMS f " +
-			"INNER JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
+			"LEFT JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
 			"LEFT JOIN (SELECT fg.FILM_ID, fg.GENRE_ID, g.NAME AS GENRE_NAME " +
 				"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
 			"ON f.FILM_ID = gnr.FILM_ID " +
 			"LEFT JOIN LIKES l ON l.FILM_ID = f.FILM_ID";
 
 	private static final String FIND_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME FROM FILMS f " +
-			"INNER JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
+			"LEFT JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
 			"LEFT JOIN (SELECT fg.FILM_ID, fg.GENRE_ID, g.NAME AS GENRE_NAME " +
 				"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
 			"ON f.FILM_ID = gnr.FILM_ID " +
@@ -61,7 +61,7 @@ public class FilmRepository extends BaseRepository<Film> {
 				film.getDescription(),
 				film.getReleaseDate(),
 				film.getDuration(),
-				film.getMpa().getId()
+				film.getMpa() == null ? null : film.getMpa().getId()
 		);
 		film.setId(id);
 		return film;

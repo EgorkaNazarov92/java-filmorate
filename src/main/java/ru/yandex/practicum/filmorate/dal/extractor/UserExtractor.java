@@ -24,7 +24,8 @@ public class UserExtractor implements ResultSetExtractor<List<User>> {
 				User user = new User(rs.getString("EMAIL"), rs.getString("LOGIN"));
 				user.setId(userId);
 				user.setName(rs.getString("NAME"));
-				user.setBirthday(rs.getDate("BIRTHDAY").toLocalDate());
+				if (rs.getDate("BIRTHDAY") != null)
+					user.setBirthday(rs.getDate("BIRTHDAY").toLocalDate());
 				Long friendId = rs.getLong("FRIEND_USER_ID");
 				if (friendId != 0) {
 					Set<Long> friends = user.getFriends();

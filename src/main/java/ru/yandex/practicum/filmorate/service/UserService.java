@@ -84,5 +84,9 @@ public class UserService {
 			log.warn("User birthday is not correct: {}", user.getBirthday());
 			throw new ValidationException("дата рождения не может быть в будущем");
 		}
+		if (user.getEmail().isEmpty()) {
+			log.warn("User email is not correct");
+			throw new ValidationException("email не может быть пустым и содержать пробелы");
+		}
 	}
 }
