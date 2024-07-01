@@ -41,13 +41,16 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 				int genreId = rs.getInt("GENRE_ID");
 				if (genreId != 0) {
 					Genre genre = new Genre();
-					genre.setId(rs.getInt("GENRE_ID"));
+					genre.setId(genreId);
 					genre.setName(rs.getString("GENRE_NAME"));
 					Set<Genre> genres = film.getGenres();
 					genres.add(genre);
 
 					film.setGenres(genres);
 				}
+
+				Long like = rs.getLong("USER_ID");
+				if (like != 0) film.getLikes().add(like);
 
 				filmMap.put(filmId, film);
 			} else {
@@ -64,7 +67,8 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 					film.setGenres(genres);
 				}
 
-				film.getLikes().add(rs.getLong("USER_ID"));
+				Long like = rs.getLong("USER_ID");
+				if (like != 0) film.getLikes().add(like);
 
 				filmMap.put(filmId, film);
 			}
