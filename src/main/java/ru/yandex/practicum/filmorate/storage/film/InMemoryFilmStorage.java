@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -10,13 +11,24 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
+@Qualifier("InMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
 
 	private final Map<Long, Film> films = new HashMap<>();
 
 	private static final Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
+
+	@Override
+	public Film getFilm(Long id) {
+		Optional<Film> film = Optional.ofNullable(films.get(id));
+		if (film.isEmpty()) {
+			throw new NotFoundException("Фильм с id = " + id + " не найден");
+		}
+		return film.get();
+	}
 
 	@Override
 	public Collection<Film> getFilms() {

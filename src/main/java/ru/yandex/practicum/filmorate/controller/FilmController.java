@@ -13,6 +13,11 @@ import java.util.Collection;
 public class FilmController {
 	private final FilmService filmService;
 
+	@GetMapping("/{id}")
+	public Film getFilm(@PathVariable("id") Long id) {
+		return filmService.getFilm(id);
+	}
+
 	@GetMapping
 	public Collection<Film> getFilms() {
 		return filmService.getFilms();
