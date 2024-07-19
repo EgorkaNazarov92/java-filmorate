@@ -31,6 +31,10 @@ public class UserService {
 				.collect(Collectors.toList());
 	}
 
+	public User getUser(Long userId) {
+		return userStorage.getUser(userId);
+	}
+
 	public Collection<UserDto> getFriends(Long id) {
 		return userStorage.getFriends(id)
 				.stream()
@@ -62,8 +66,8 @@ public class UserService {
 		return UserMapper.mapToUserDto(newUser);
 	}
 
-	public void removeUser(Long id) {
-		userStorage.removeUser(id);
+	public void deleteUser(Long id) {
+		userStorage.deleteUser(id);
 	}
 
 	public void addFriend(Long userId, Long friendId) {

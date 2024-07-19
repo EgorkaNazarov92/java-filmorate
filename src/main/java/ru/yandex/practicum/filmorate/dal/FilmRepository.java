@@ -79,7 +79,7 @@ public class FilmRepository extends BaseRepository<Film> {
 		return newFilm;
 	}
 
-	public void removeFilm(Long id) {
+	public void deleteFilm(Long id) {
 		delete(DELETE_QUERY, id);
 	}
 
