@@ -13,8 +13,10 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class FilmService {
@@ -98,4 +100,26 @@ public class FilmService {
 			throw new ValidationException("продолжительность фильма должна быть положительным числом");
 		}
 	}
+
+    public Collection<Film> search(String query, String by) {
+        List<String> acceptedValues = List.of("title", "director");
+        List<String> byList = new ArrayList<>();
+        if (by.contains(",")) {
+            String[] split = by.split(",");
+            for (String s : split) {
+                if (!s.isEmpty() && !s.isBlank() && acceptedValues.contains(s)) {
+                    byList.add(s);
+                } else {
+                    throw new ValidationException("Передан некорретный параметр by = " + s);
+                }
+            }
+        } else {
+            if (acceptedValues.contains(by)) {
+                byList.add(by);
+            } else {
+                throw new ValidationException("Передан некорретный параметр by = " + by);
+            }
+        }
+        return filmStorage.search(query, byList);
+    }
 }

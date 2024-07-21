@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -89,7 +90,15 @@ public class InMemoryFilmStorage implements FilmStorage {
 		films.get(filmId).getLikes().remove(userId);
 	}
 
-	// вспомогательный метод для генерации идентификатора нового поста
+    @Override
+    public Collection<Film> search(String query, List<String> by) {
+        return films.values()
+                .stream()
+                .filter(film -> film.getName().toLowerCase().contains(query))
+                .toList();
+    }
+
+    // вспомогательный метод для генерации идентификатора нового поста
 	private long getNextId() {
 		long currentMaxId = films.keySet()
 				.stream()

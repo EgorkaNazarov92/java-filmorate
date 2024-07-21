@@ -40,6 +40,27 @@ public class FilmRepository extends BaseRepository<Film> {
 
 	private static final String INSERT_GENRE_QUERY = "INSERT INTO FILM_GENRES(FILM_ID, GENRE_ID) VALUES(?, ?)";
 
+    private String getQueryForSearch(List<String> by) {
+        String partOfNameQuery = "LOWER(f.NAME) LIKE LOWER(CONCAT('%', ?, '%'))";
+        String partOfDirectorQuery = "LOWER(f.DIRECTOR) LIKE LOWER(CONCAT('%', ?, '%'))";
+        StringBuilder resultBy = new StringBuilder();
+        by.forEach(i -> {
+            if (i.equals("title")) {
+                if (!resultBy.isEmpty()) {
+                    resultBy.append(" OR ");
+                }
+                resultBy.append(partOfNameQuery);
+            }
+            if (i.equals("director")) {
+                if (!resultBy.isEmpty()) {
+                    resultBy.append(" OR ");
+                }
+                resultBy.append(partOfDirectorQuery);
+            }
+        });
+        return FIND_ALL_QUERY + " WHERE " + resultBy;
+    }
+
 	public FilmRepository(JdbcTemplate jdbc, ResultSetExtractor<List<Film>> extractor) {
 		super(jdbc, extractor);
 	}
@@ -95,4 +116,8 @@ public class FilmRepository extends BaseRepository<Film> {
 	public void addGenre(Long filmId, Integer genreId) {
 		simpleInsert(INSERT_GENRE_QUERY, filmId, genreId);
 	}
+
+    public List<Film> search(String query, List<String> searchBy) {
+        return findMany(getQueryForSearch(searchBy), query);
+    }
 }
