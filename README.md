@@ -52,7 +52,8 @@ Template repository for Filmorate project.
     Справочник заполнить сразу, и назначать фильму id.  
     <br>
     Получить значение:  
-   ```SELECT NAME FROM MPA WHERE MPA_ID = {mpaId}```
+   ```SELECT NAME FROM MPA WHERE MPA_ID = {mpaId}```  
+   <br>
 6. FILM_GENRES - Талица для связи "многие ко многим", чтобы привязывать одному фильму несколько жанров. FK - FILM_ID, 
    GENRE_ID.  
     <br>
@@ -60,10 +61,18 @@ Template repository for Filmorate project.
    ```SELECT GENRE_ID FROM FILM_GENRES WHERE FILM_ID = {filmId}```
     <br>  
     Добавить жанр к фильму:  
-   ```INSERT INTO FILM_GENRES VALUES ({filmId}, {genreId})```
+   ```INSERT INTO FILM_GENRES VALUES ({filmId}, {genreId})```  
+   <br>
 7. GENRES - справочник жанров фильма. Наполнить сразу. PK - GENRE_ID.  
     У каждого жанра, будет свой id.  
     <br>
    Получить названия жанра:  
-   ```SELECT NAME FROM GENRES WHERE GENRE_ID = {genreId}```
+   ```SELECT NAME FROM GENRES WHERE GENRE_ID = {genreId}```  
+   <br>
+8. REVIEWS - Таблица с отзывами на фильмы. Имеет связи с таблицами USERS и FILMS.  
+   <br>
+9. REVIEW_LIKES - Таблица с лайками на отзывы фильма. Имеет связи с таблицами USERS и REVIEWS.  
+   <br>
+10. REVIEW_DISLIKES - Таблица с дизлайками на отзывы фильма. Имеет связи с таблицами USERS и REVIEWS.  
+   <br>
     
