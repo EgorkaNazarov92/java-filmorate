@@ -39,10 +39,13 @@ public class FilmService {
 		return filmStorage.getFilms();
 	}
 
-	public Collection<Film> getPopular(int count) {
+	public Collection<Film> getPopularByYear(int count, Integer genreId, Integer year) {
 		Collection<Film> popularFilms = filmStorage.getFilms().stream()
+				.filter(film -> (genreId == null || film.getGenres().stream().anyMatch(genre -> genre.getId().equals(genreId))))
+				.filter(film -> (year == null || film.getReleaseDate().getYear() == year))
 				.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
 				.toList();
+
 		if (popularFilms.size() < count) count = popularFilms.size();
 		return popularFilms.stream().toList().subList(0, count);
 	}
