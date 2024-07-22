@@ -45,9 +45,9 @@ public class FilmDbStorage implements FilmStorage {
 	}
 
 	@Override
-	public void removeFilm(Long id) {
+	public void deleteFilm(Long id) {
 		getFilm(id);
-		filmRepository.removeFilm(id);
+		filmRepository.deleteFilm(id);
 	}
 
 	@Override
