@@ -67,11 +67,11 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void addLike(Long id, Long userId) {
-        Review review = getReview(id);
+        getReview(id);
         reviewRepository.addLike(id, userId);
         Event event = Event.builder()
-                .userId(review.getUserId())
-                .entityId(review.getReviewId())
+                .userId(userId)
+                .entityId(id)
                 .timestamp(Instant.now().toEpochMilli())
                 .eventType(Event.EventType.REVIEW)
                 .operation(Event.Operation.UPDATE)
@@ -81,11 +81,11 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void addDislike(Long id, Long userId) {
-        Review review = getReview(id);
+        getReview(id);
         reviewRepository.addDislike(id, userId);
         Event event = Event.builder()
-                .userId(review.getUserId())
-                .entityId(review.getReviewId())
+                .userId(userId)
+                .entityId(id)
                 .timestamp(Instant.now().toEpochMilli())
                 .eventType(Event.EventType.REVIEW)
                 .operation(Event.Operation.UPDATE)
@@ -109,11 +109,11 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void deleteLike(Long id, Long userId) {
-        Review review = getReview(id);
+        getReview(id);
         reviewRepository.removeLike(id, userId);
         Event event = Event.builder()
-                .userId(review.getUserId())
-                .entityId(review.getReviewId())
+                .userId(userId)
+                .entityId(id)
                 .timestamp(Instant.now().toEpochMilli())
                 .eventType(Event.EventType.REVIEW)
                 .operation(Event.Operation.UPDATE)
@@ -123,11 +123,11 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void deleteDislike(Long id, Long userId) {
-        Review review = getReview(id);
+        getReview(id);
         reviewRepository.removeDislike(id, userId);
         Event event = Event.builder()
-                .userId(review.getUserId())
-                .entityId(review.getReviewId())
+                .userId(userId)
+                .entityId(id)
                 .timestamp(Instant.now().toEpochMilli())
                 .eventType(Event.EventType.REVIEW)
                 .operation(Event.Operation.UPDATE)

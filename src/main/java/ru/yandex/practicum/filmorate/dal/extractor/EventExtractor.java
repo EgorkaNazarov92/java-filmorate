@@ -8,16 +8,14 @@ import ru.yandex.practicum.filmorate.model.Event;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class EventExtractor implements ResultSetExtractor<List<Event>> {
     @Override
     public List<Event> extractData(@NonNull ResultSet rs) throws DataAccessException, SQLException {
-        Map<Long, Event> idToEvent = new HashMap<>();
+        List<Event> events = new ArrayList<>();
 
         while (rs.next()) {
             Event event = Event.builder()
@@ -29,9 +27,9 @@ public class EventExtractor implements ResultSetExtractor<List<Event>> {
                     .operation(Event.Operation.valueOf(rs.getString("OPERATION")))
                     .build();
 
-            idToEvent.put(event.getEventId(), event);
+            events.add(event);
         }
 
-        return idToEvent.values().stream().sorted(Comparator.comparingLong(Event::getEventId)).toList();
+        return events;
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.EventRepository;
 import ru.yandex.practicum.filmorate.model.Event;
 
-import java.util.List;
+import java.util.Collection;
 
 @Component
 @Primary
@@ -15,7 +15,7 @@ public class EventStorageImpl implements EventStorage {
     private final EventRepository eventRepository;
 
     @Override
-    public List<Event> getEventsByUserId(long userId) {
+    public Collection<Event> getEventsByUserId(long userId) {
         return eventRepository.getEventsByUserId(userId);
     }
 
