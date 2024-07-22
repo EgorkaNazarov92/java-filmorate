@@ -2,29 +2,35 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-	@Autowired
-	@Qualifier("UserDbStorage")
-	private UserStorage userStorage;
+	private final UserStorage userStorage;
 
-	private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final EventStorage eventStorage;
 
+    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, EventStorage eventStorage) {
+        this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
+    }
 
-	public Collection<UserDto> getUsers() {
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
+    public Collection<UserDto> getUsers() {
 		return userStorage.getUsers()
 				.stream()
 				.map(UserMapper::mapToUserDto)
@@ -89,4 +95,8 @@ public class UserService {
 			throw new ValidationException("email не может быть пустым и содержать пробелы");
 		}
 	}
+
+    public List<Event> getEventsByUserId(Long userId) {
+        return eventStorage.getEventsByUserId(userId);
+    }
 }

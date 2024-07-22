@@ -7,10 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Validated
 @RestController
@@ -21,7 +23,7 @@ public class UserController {
 
 	private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-	@GetMapping
+    @GetMapping
 	public Collection<UserDto> getUsers() {
 		return userService.getUsers();
 	}
@@ -55,4 +57,9 @@ public class UserController {
 	public void deleteFriend(@PathVariable("id") Long userId, @PathVariable("friendId") Long friendId) {
 		userService.deleteFriend(userId, friendId);
 	}
+
+    @GetMapping("/{id}/feed")
+    public List<Event> getEvents(@PathVariable("id") Long userId) {
+        return userService.getEventsByUserId(userId);
+    }
 }

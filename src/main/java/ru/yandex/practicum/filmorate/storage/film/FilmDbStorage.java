@@ -1,20 +1,25 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
 @Component
 @Qualifier("FilmDbStorage")
+@AllArgsConstructor
 public class FilmDbStorage implements FilmStorage {
-	@Autowired
 	private FilmRepository filmRepository;
+
+    private EventStorage eventStorage;
 
 	@Override
 	public Film getFilm(Long id) {
@@ -55,11 +60,27 @@ public class FilmDbStorage implements FilmStorage {
 	public void addLike(Long filmId, Long userId) {
 		getFilm(filmId);
 		filmRepository.addLike(filmId, userId);
+        Event event = Event.builder()
+                .userId(userId)
+                .entityId(filmId)
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.LIKE)
+                .operation(Event.Operation.ADD)
+                .build();
+        eventStorage.addEvent(event);
 	}
 
 	@Override
 	public void deleteLike(Long filmId, Long userId) {
 		getFilm(filmId);
 		filmRepository.deleteLike(filmId, userId);
+        Event event = Event.builder()
+                .userId(userId)
+                .entityId(filmId)
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.LIKE)
+                .operation(Event.Operation.REMOVE)
+                .build();
+        eventStorage.addEvent(event);
 	}
 }
