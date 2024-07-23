@@ -75,4 +75,6 @@ Template repository for Filmorate project.
    <br>
 10. REVIEW_DISLIKES - Таблица с дизлайками на отзывы фильма. Имеет связи с таблицами USERS и REVIEWS.  
    <br>
+11. EVENTS - Таблица событий пользователя. Имеет связь many to one с таблицей USERS
+   <br>
     
