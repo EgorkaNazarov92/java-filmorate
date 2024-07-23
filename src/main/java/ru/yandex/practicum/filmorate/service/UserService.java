@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -20,6 +22,9 @@ public class UserService {
 	@Autowired
 	@Qualifier("UserDbStorage")
 	private UserStorage userStorage;
+	@Autowired
+	@Qualifier("FilmDbStorage")
+	private FilmStorage filmStorage;
 
 	private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
@@ -47,6 +52,12 @@ public class UserService {
 				.stream()
 				.map(UserMapper::mapToUserDto)
 				.collect(Collectors.toList());
+	}
+
+	public Collection<Film> getRecommendationFilms(Long userId) {
+		Collection<Film> recFilms =  filmStorage.getRecommendedFilms(userId);
+		log.info("{} recommended films for user with ID {}", recFilms.size(), userId);
+		return recFilms;
 	}
 
 	public UserDto addUser(User user) {

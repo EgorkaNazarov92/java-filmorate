@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -61,5 +62,10 @@ public class FilmDbStorage implements FilmStorage {
 	public void deleteLike(Long filmId, Long userId) {
 		getFilm(filmId);
 		filmRepository.deleteLike(filmId, userId);
+	}
+
+	@Override
+	public Collection<Film> getRecommendedFilms(Long userId) {
+		return filmRepository.getRecommendedFilms(userId);
 	}
 }
