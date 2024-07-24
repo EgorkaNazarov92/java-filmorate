@@ -22,7 +22,6 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 
 		//итерируемся по всем строкам ResultSet
 		while (rs.next()) {
-			System.out.println(rs);
 			Long filmId = rs.getLong("FILM_ID");
 			if (!filmMap.containsKey(filmId)) {
 				Film film = new Film();
@@ -59,10 +58,10 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 					Director director = new Director();
 					director.setId(directorId);
 					director.setName(rs.getString("DIRECTOR_NAME"));
-					Set<Director> directors = film.getDirectors();
+					Set<Director> directors = film.getDirector();
 					directors.add(director);
 
-					film.setDirectors(directors);
+					film.setDirector(directors);
 				}
 
 				filmMap.put(filmId, film);
@@ -89,10 +88,10 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 					Director director = new Director();
 					director.setId(directorId);
 					director.setName(rs.getString("DIRECTOR_NAME"));
-					Set<Director> directors = film.getDirectors();
+					Set<Director> directors = film.getDirector();
 					directors.add(director);
 
-					film.setDirectors(directors);
+					film.setDirector(directors);
 				}
 
 				filmMap.put(filmId, film);

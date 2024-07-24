@@ -83,7 +83,7 @@ public class FilmService {
 	public Collection<Film> getSortedDirectorsFilms(int directorId, String sortBy) {
 		if (sortBy.equals("year")) {
 			return filmStorage.getFilms().stream()
-					.filter(film -> film.getDirectors().stream()
+					.filter(film -> film.getDirector().stream()
 							.map(Director::getId)
 							.collect(Collectors.toSet())
 							.contains(directorId))
@@ -91,7 +91,7 @@ public class FilmService {
 					.collect(Collectors.toList());
 		} else {
 			return filmStorage.getFilms().stream()
-					.filter(film -> film.getDirectors().stream()
+					.filter(film -> film.getDirector().stream()
 							.map(Director::getId)
 							.collect(Collectors.toSet())
 							.contains(directorId))
