@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.dal.extractor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -21,6 +22,7 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 
 		//итерируемся по всем строкам ResultSet
 		while (rs.next()) {
+			System.out.println(rs);
 			Long filmId = rs.getLong("FILM_ID");
 			if (!filmMap.containsKey(filmId)) {
 				Film film = new Film();
@@ -52,7 +54,19 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 				Long like = rs.getLong("USER_ID");
 				if (like != 0) film.getLikes().add(like);
 
+				int directorId = rs.getInt("DIRECTOR_ID");
+				if (directorId != 0) {
+					Director director = new Director();
+					director.setId(directorId);
+					director.setName(rs.getString("DIRECTOR_NAME"));
+					Set<Director> directors = film.getDirectors();
+					directors.add(director);
+
+					film.setDirectors(directors);
+				}
+
 				filmMap.put(filmId, film);
+
 			} else {
 				Film film = filmMap.get(filmId);
 
@@ -69,6 +83,17 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 
 				Long like = rs.getLong("USER_ID");
 				if (like != 0) film.getLikes().add(like);
+
+				int directorId = rs.getInt("DIRECTOR_ID");
+				if (directorId != 0) {
+					Director director = new Director();
+					director.setId(directorId);
+					director.setName(rs.getString("DIRECTOR_NAME"));
+					Set<Director> directors = film.getDirectors();
+					directors.add(director);
+
+					film.setDirectors(directors);
+				}
 
 				filmMap.put(filmId, film);
 			}

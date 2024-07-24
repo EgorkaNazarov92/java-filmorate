@@ -36,6 +36,9 @@ public class FilmDbStorage implements FilmStorage {
 		newFilm.getGenres()
 				.stream()
 				.forEach(genre -> filmRepository.addGenre(newFilm.getId(), genre.getId()));
+		newFilm.getDirectors()
+				.stream()
+				.forEach(director -> filmRepository.addDirector(newFilm.getId(), director.getId()));
 		return newFilm;
 	}
 
