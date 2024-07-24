@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -80,6 +81,14 @@ public class FilmService {
 	public void deleteLike(Long filmId, Long userId) {
 		userStorage.getUser(userId);
 		filmStorage.deleteLike(filmId, userId);
+	}
+
+	public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+		return filmStorage.getFilms().stream()
+				.filter(film -> film.getLikes().contains(userId)
+						&& film.getLikes().contains(friendId))
+				.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
+				.collect(Collectors.toList());
 	}
 
 
