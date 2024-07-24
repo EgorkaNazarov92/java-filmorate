@@ -8,12 +8,15 @@ import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.event.EventStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -21,18 +24,24 @@ public class UserService {
 
     private final EventStorage eventStorage;
 
-    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, EventStorage eventStorage) {
+    private FilmStorage filmStorage;
+
+    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage,
+                       EventStorage eventStorage,
+                       @Qualifier("FilmDbStorage") FilmStorage filmStorage) {
         this.userStorage = userStorage;
         this.eventStorage = eventStorage;
+        this.filmStorage = filmStorage;
     }
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
 
     public Collection<UserDto> getUsers() {
         return userStorage.getUsers()
                 .stream()
                 .map(UserMapper::mapToUserDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public User getUser(Long userId) {
@@ -43,14 +52,20 @@ public class UserService {
         return userStorage.getFriends(id)
                 .stream()
                 .map(UserMapper::mapToUserDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public Collection<UserDto> getMutualFriends(Long id, Long otherId) {
         return userStorage.getMutualFriends(id, otherId)
                 .stream()
                 .map(UserMapper::mapToUserDto)
-                .toList();
+                .collect(Collectors.toList());
+    }
+
+    public Collection<Film> getRecommendationFilms(Long userId) {
+        Collection<Film> recFilms =  filmStorage.getRecommendedFilms(userId);
+        log.info("{} recommended films for user with ID {}", recFilms.size(), userId);
+        return recFilms;
     }
 
     public UserDto addUser(User user) {
@@ -68,6 +83,10 @@ public class UserService {
         newUser = userStorage.changeUser(newUser);
         log.info("Update user: {}", newUser);
         return UserMapper.mapToUserDto(newUser);
+    }
+
+    public Collection<Event> getEventsByUserId(Long userId) {
+        return eventStorage.getEventsByUserId(userId);
     }
 
     public void deleteUser(Long id) {
@@ -96,9 +115,5 @@ public class UserService {
             log.warn("User email is not correct");
             throw new ValidationException("email не может быть пустым и содержать пробелы");
         }
-    }
-
-    public Collection<Event> getEventsByUserId(Long userId) {
-        return eventStorage.getEventsByUserId(userId);
     }
 }

@@ -83,4 +83,9 @@ public class FilmDbStorage implements FilmStorage {
                 .build();
         eventStorage.addEvent(event);
 	}
+
+	@Override
+	public Collection<Film> getRecommendedFilms(Long userId) {
+		return filmRepository.getRecommendedFilms(userId);
+	}
 }

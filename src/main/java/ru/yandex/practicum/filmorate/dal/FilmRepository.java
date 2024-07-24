@@ -40,10 +40,26 @@ public class FilmRepository extends BaseRepository<Film> {
 
 	private static final String INSERT_GENRE_QUERY = "INSERT INTO FILM_GENRES(FILM_ID, GENRE_ID) VALUES(?, ?)";
 
+	private static final String FILMS_RECOMMENDED_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME " +
+					"FROM likes l " +
+					"JOIN films f ON f.film_id = l.film_id " +
+					"LEFT JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
+					"LEFT JOIN (SELECT fg.FILM_ID, fg.GENRE_ID, g.NAME AS GENRE_NAME " +
+					"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
+					"ON f.FILM_ID = gnr.FILM_ID " +
+					"WHERE l.user_id = (SELECT l2.user_id FROM likes l1 JOIN likes l2 ON l1.film_id = l2.film_id " +
+					"AND l1.user_id != l2.user_id WHERE l1.user_id = ? GROUP BY l2.user_id " +
+					"ORDER BY COUNT(*) DESC LIMIT 1) " +
+					"AND l.film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)";
+
+
 	public FilmRepository(JdbcTemplate jdbc, ResultSetExtractor<List<Film>> extractor) {
 		super(jdbc, extractor);
 	}
 
+	public List<Film> getRecommendedFilms(Long userId) {
+		return findMany(FILMS_RECOMMENDED_QUERY, userId, userId);
+	}
 
 	public List<Film> getFilms() {
 		return findMany(FIND_ALL_QUERY);
