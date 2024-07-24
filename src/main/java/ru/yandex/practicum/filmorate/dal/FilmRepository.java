@@ -104,7 +104,7 @@ public class 	FilmRepository extends BaseRepository<Film> {
 		simpleInsert(INSERT_GENRE_QUERY, filmId, genreId);
 	}
 
-	public void addDirector(Long filmId, Integer directorId) {
+	public void addDirector(Long filmId, long directorId) {
 		simpleInsert(INSERT_DIRECTOR_QUERY, filmId, directorId);
 	}
 }

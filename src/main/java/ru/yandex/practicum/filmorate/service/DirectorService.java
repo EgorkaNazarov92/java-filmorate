@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.DirectorRepository;
+import ru.yandex.practicum.filmorate.dto.ObjectWithNameDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.Collection;
@@ -14,7 +16,7 @@ import java.util.Optional;
 public class DirectorService {
     private final DirectorRepository directorRepository;
 
-    public Director getDirector(int id) {
+    public Director getDirector(long id) {
         Optional<Director> director = directorRepository.getDirector(id);
         if (director.isEmpty()) {
             throw new NotFoundException("Director с id = " + id + " не найден");
@@ -26,15 +28,20 @@ public class DirectorService {
         return directorRepository.getDirectors();
     }
 
-    public Director addDirector(Director director) {
+    public Director addDirector(ObjectWithNameDto director) {
+        if (director.getName().isEmpty() || director.getName().isBlank()) {
+            throw new ValidationException("Имя не должно быть пустым");
+        }
         return directorRepository.addDirector(director);
     }
 
     public Director changeDirector(Director director) {
+        getDirector(director.getId());
         return directorRepository.updateDirector(director);
     }
 
-    public void deleteDirector(int id) {
+    public void deleteDirector(long id) {
+        getDirector(id);
         directorRepository.deleteDirector(id);
     }
 }

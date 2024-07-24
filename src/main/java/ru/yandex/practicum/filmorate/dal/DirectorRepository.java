@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.dal;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dto.ObjectWithNameDto;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.Optional;
 public class DirectorRepository extends BaseRepository<Director> {
     private static final String FIND_DIRECTOR_QUERY = "SELECT * FROM DIRECTORS WHERE DIRECTOR_ID = ?";
     private static final String FIND_ALL_QUERY = "SELECT * FROM DIRECTORS";
-    private static final String INSERT_QUERY = "INSERT INTO DIRECTORS (DIRECTOR_ID, NAME) VALUES(?, ?)";
+    private static final String INSERT_QUERY = "INSERT INTO DIRECTORS (NAME) VALUES(?)";
     private static final String UPDATE_QUERY = "UPDATE DIRECTORS SET NAME = ? WHERE DIRECTOR_ID = ?";
     private static final String DELETE_QUERY = "DELETE FROM DIRECTORS WHERE DIRECTOR_ID = ?";
 
@@ -21,7 +22,7 @@ public class DirectorRepository extends BaseRepository<Director> {
     }
 
 
-    public Optional<Director> getDirector(Integer id) {
+    public Optional<Director> getDirector(long id) {
         return findOne(FIND_DIRECTOR_QUERY, id);
     }
 
@@ -29,9 +30,9 @@ public class DirectorRepository extends BaseRepository<Director> {
         return findMany(FIND_ALL_QUERY);
     }
 
-    public Director addDirector(Director director) {
-        simpleInsert(INSERT_QUERY, director.getId(), director.getName());
-        return director;
+    public Director addDirector(ObjectWithNameDto director) {
+        long id = insert(INSERT_QUERY, director.getName());
+        return findOne(FIND_DIRECTOR_QUERY, id).orElse(null);
     }
 
     public Director updateDirector(Director director) {
@@ -39,7 +40,7 @@ public class DirectorRepository extends BaseRepository<Director> {
         return director;
     }
 
-    public void deleteDirector(Integer id) {
+    public void deleteDirector(long id) {
         delete(DELETE_QUERY, id);
     }
 }
