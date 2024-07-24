@@ -58,7 +58,7 @@ public class FilmRepository extends BaseRepository<Film> {
 	}
 
 	public List<Film> getRecommendedFilms(Long userId) {
-		return jdbc.query(FILMS_RECOMMENDED_QUERY, extractor, userId, userId);
+		return findMany(FILMS_RECOMMENDED_QUERY, userId, userId);
 	}
 
 	public List<Film> getFilms() {
