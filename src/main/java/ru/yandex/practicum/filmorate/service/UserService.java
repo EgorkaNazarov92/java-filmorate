@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.event.EventStorage;
@@ -82,6 +83,10 @@ public class UserService {
         newUser = userStorage.changeUser(newUser);
         log.info("Update user: {}", newUser);
         return UserMapper.mapToUserDto(newUser);
+    }
+
+    public Collection<Event> getEventsByUserId(Long userId) {
+        return eventStorage.getEventsByUserId(userId);
     }
 
     public void deleteUser(Long id) {

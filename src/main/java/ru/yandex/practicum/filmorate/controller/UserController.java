@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -70,5 +71,10 @@ public class UserController {
 	@DeleteMapping("/{id}")
 	public void deleteUser(@PathVariable("id") Long userId) {
 		userService.deleteUser(userId);
+	}
+
+	@GetMapping("/{id}/feed")
+	public Collection<Event> getEvents(@PathVariable("id") Long userId) {
+		return userService.getEventsByUserId(userId);
 	}
 }
