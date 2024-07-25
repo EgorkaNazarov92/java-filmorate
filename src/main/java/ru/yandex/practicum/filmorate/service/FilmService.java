@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -25,6 +26,9 @@ public class FilmService {
 	@Autowired
 	@Qualifier("UserDbStorage")
 	private UserStorage userStorage;
+	@Autowired
+	@Qualifier("DirectorDbStorage")
+	private DirectorStorage directorStorage;
 
 	private static final LocalDate startReleaseDate = LocalDate
 			.parse("28.12.1895", DateTimeFormatter.ofPattern("dd.MM.yyyy"));
@@ -81,6 +85,24 @@ public class FilmService {
 	public void deleteLike(Long filmId, Long userId) {
 		userStorage.getUser(userId);
 		filmStorage.deleteLike(filmId, userId);
+	}
+
+	public Collection<Film> getSortedDirectorsFilms(Long directorId, String sortBy) {
+		directorStorage.getDirector(directorId);
+		if (sortBy.equals("year")) {
+			return filmStorage.getFilms().stream()
+					.filter(film -> film.getDirectors().stream()
+							.anyMatch(director -> director.getId().equals(directorId)))
+					.sorted(Comparator.comparing(film -> film.getReleaseDate().getYear()))
+					.collect(Collectors.toList());
+		} else {
+			return filmStorage.getFilms().stream()
+					.filter(film -> film.getDirectors().stream()
+							.anyMatch(director -> director.getId().equals(directorId)))
+					.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
+					.collect(Collectors.toList());
+		}
+
 	}
 
 	public Collection<Film> getCommonFilms(Long userId, Long friendId) {

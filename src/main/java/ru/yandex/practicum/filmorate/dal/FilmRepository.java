@@ -10,18 +10,24 @@ import java.util.Optional;
 
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
-	private static final String FIND_ALL_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME FROM FILMS f " +
+	private static final String FIND_ALL_QUERY = "SELECT f.*, gnr.*, dtr.*, l.USER_ID, m.NAME AS MPA_NAME FROM FILMS f " +
 			"LEFT JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
 			"LEFT JOIN (SELECT fg.FILM_ID, fg.GENRE_ID, g.NAME AS GENRE_NAME " +
 			"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
 			"ON f.FILM_ID = gnr.FILM_ID " +
+			"LEFT JOIN (SELECT fd.FILM_ID, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+			"FROM FILM_DIRECTORS fd INNER JOIN DIRECTORS d ON fd.DIRECTOR_ID = d.DIRECTOR_ID) dtr " +
+			"ON f.FILM_ID = dtr.FILM_ID " +
 			"LEFT JOIN LIKES l ON l.FILM_ID = f.FILM_ID";
 
-	private static final String FIND_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME FROM FILMS f " +
+	private static final String FIND_QUERY = "SELECT f.*, gnr.*, dtr.*, l.USER_ID, m.NAME AS MPA_NAME FROM FILMS f " +
 			"LEFT JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
 			"LEFT JOIN (SELECT fg.FILM_ID, fg.GENRE_ID, g.NAME AS GENRE_NAME " +
 			"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
 			"ON f.FILM_ID = gnr.FILM_ID " +
+			"LEFT JOIN (SELECT fd.FILM_ID, fd.DIRECTOR_ID, d.NAME AS DIRECTOR_NAME " +
+			"FROM FILM_DIRECTORS fd INNER JOIN DIRECTORS d ON fd.DIRECTOR_ID = d.DIRECTOR_ID) dtr " +
+			"ON f.FILM_ID = dtr.FILM_ID " +
 			"LEFT JOIN LIKES l ON l.FILM_ID = f.FILM_ID " +
 			"WHERE f.FILM_ID = ?";
 
@@ -41,6 +47,10 @@ public class FilmRepository extends BaseRepository<Film> {
 	private static final String INSERT_GENRE_QUERY = "INSERT INTO FILM_GENRES(FILM_ID, GENRE_ID) VALUES(?, ?)";
 
 	private static final String DELETE_GENRE_QUERY = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
+
+	private static final String INSERT_DIRECTOR_QUERY = "INSERT INTO FILM_DIRECTORS(FILM_ID, DIRECTOR_ID) VALUES(?, ?)";
+
+	private static final String DELETE_DIRECTOR_QUERY = "DELETE FROM FILM_DIRECTORS WHERE FILM_ID = ?";
 
 	private static final String FILMS_RECOMMENDED_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME " +
 			"FROM likes l " +
@@ -106,6 +116,10 @@ public class FilmRepository extends BaseRepository<Film> {
 		delete(DELETE_GENRE_QUERY, filmId);
 	}
 
+	public void deleteDirectors(Long filmId) {
+		delete(DELETE_DIRECTOR_QUERY, filmId);
+	}
+
 	public void addLike(Long filmId, Long userId) {
 		simpleInsert(INSERT_LIKE_QUERY, filmId, userId);
 	}
@@ -116,5 +130,9 @@ public class FilmRepository extends BaseRepository<Film> {
 
 	public void addGenre(Long filmId, Integer genreId) {
 		simpleInsert(INSERT_GENRE_QUERY, filmId, genreId);
+	}
+
+	public void addDirector(Long filmId, long directorId) {
+		simpleInsert(INSERT_DIRECTOR_QUERY, filmId, directorId);
 	}
 }
