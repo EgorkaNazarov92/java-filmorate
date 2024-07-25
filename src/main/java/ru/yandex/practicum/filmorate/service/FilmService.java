@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -84,22 +83,18 @@ public class FilmService {
 		filmStorage.deleteLike(filmId, userId);
 	}
 
-	public Collection<Film> getSortedDirectorsFilms(int directorId, String sortBy) {
+	public Collection<Film> getSortedDirectorsFilms(Long directorId, String sortBy) {
 		if (sortBy.equals("year")) {
 			return filmStorage.getFilms().stream()
-					.filter(film -> film.getDirector().stream()
-							.map(Director::getId)
-							.collect(Collectors.toSet())
-							.contains(directorId))
-					.sorted(Comparator.comparingInt(film -> film.getReleaseDate().getYear()))
+					.filter(film -> film.getDirectors().stream()
+							.anyMatch(director -> director.getId().equals(directorId)))
+					.sorted(Comparator.comparing(film -> film.getReleaseDate().getYear()))
 					.collect(Collectors.toList());
 		} else {
 			return filmStorage.getFilms().stream()
-					.filter(film -> film.getDirector().stream()
-							.map(Director::getId)
-							.collect(Collectors.toSet())
-							.contains(directorId))
-					.sorted(Comparator.comparingInt(film -> film.getLikes().size()))
+					.filter(film -> film.getDirectors().stream()
+							.anyMatch(director -> director.getId().equals(directorId)))
+					.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
 					.collect(Collectors.toList());
 		}
 

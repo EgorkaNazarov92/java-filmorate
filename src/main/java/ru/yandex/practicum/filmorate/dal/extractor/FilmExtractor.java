@@ -53,15 +53,15 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 				Long like = rs.getLong("USER_ID");
 				if (like != 0) film.getLikes().add(like);
 
-				int directorId = rs.getInt("DIRECTOR_ID");
+				Long directorId = rs.getLong("DIRECTOR_ID");
 				if (directorId != 0) {
 					Director director = new Director();
 					director.setId(directorId);
 					director.setName(rs.getString("DIRECTOR_NAME"));
-					Set<Director> directors = film.getDirector();
+					Set<Director> directors = film.getDirectors();
 					directors.add(director);
 
-					film.setDirector(directors);
+					film.setDirectors(directors);
 				}
 
 				filmMap.put(filmId, film);
@@ -83,15 +83,15 @@ public class FilmExtractor implements ResultSetExtractor<List<Film>> {
 				Long like = rs.getLong("USER_ID");
 				if (like != 0) film.getLikes().add(like);
 
-				int directorId = rs.getInt("DIRECTOR_ID");
+				Long directorId = rs.getLong("DIRECTOR_ID");
 				if (directorId != 0) {
 					Director director = new Director();
 					director.setId(directorId);
 					director.setName(rs.getString("DIRECTOR_NAME"));
-					Set<Director> directors = film.getDirector();
+					Set<Director> directors = film.getDirectors();
 					directors.add(director);
 
-					film.setDirector(directors);
+					film.setDirectors(directors);
 				}
 
 				filmMap.put(filmId, film);

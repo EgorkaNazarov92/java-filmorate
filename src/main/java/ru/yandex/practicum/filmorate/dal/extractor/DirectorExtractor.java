@@ -13,21 +13,21 @@ import java.util.List;
 @Component
 public class DirectorExtractor implements ResultSetExtractor<List<Director>> {
 
-    @Override
-    public List<Director> extractData(ResultSet rs)
-            throws SQLException, DataAccessException {
-        List<Director> directors = new ArrayList<>();
+	@Override
+	public List<Director> extractData(ResultSet rs)
+			throws SQLException, DataAccessException {
+		List<Director> directors = new ArrayList<>();
 
-        //итерируемся по всем строкам ResultSet
-        while (rs.next()) {
-            Director director = new Director();
-            director.setId(rs.getInt("DIRECTOR_ID"));
-            director.setName(rs.getString("NAME"));
+		//итерируемся по всем строкам ResultSet
+		while (rs.next()) {
+			Director director = new Director();
+			director.setId(rs.getLong("DIRECTOR_ID"));
+			director.setName(rs.getString("NAME"));
 
-            directors.add(director);
-        }
+			directors.add(director);
+		}
 
-        return directors;
-    }
+		return directors;
+	}
 
 }
