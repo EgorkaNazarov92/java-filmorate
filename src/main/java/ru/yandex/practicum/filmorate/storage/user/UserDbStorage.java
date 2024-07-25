@@ -1,21 +1,26 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
 @Component
 @Qualifier("UserDbStorage")
+@AllArgsConstructor
 public class UserDbStorage implements UserStorage {
-	@Autowired
 	private UserRepository userRepository;
+
+    private EventStorage eventStorage;
 
 	public User getUser(Long id) {
 		Optional<User> user = userRepository.getUser(id);
@@ -51,7 +56,7 @@ public class UserDbStorage implements UserStorage {
 	}
 
 	@Override
-	public void removeUser(Long id) {
+	public void deleteUser(Long id) {
 		getUser(id);
 		userRepository.delete(id);
 	}
@@ -76,6 +81,14 @@ public class UserDbStorage implements UserStorage {
 		} else {
 			userRepository.addFriend(userId, friendId, false);
 		}
+        Event event = Event.builder()
+                .userId(userId)
+                .entityId(friendId)
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.FRIEND)
+                .operation(Event.Operation.ADD)
+                .build();
+        eventStorage.addEvent(event);
 	}
 
 	@Override
@@ -83,5 +96,13 @@ public class UserDbStorage implements UserStorage {
 		getUser(userId);
 		getUser(friendId);
 		userRepository.deleteFriend(userId, friendId);
+        Event event = Event.builder()
+                .userId(userId)
+                .entityId(friendId)
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.FRIEND)
+                .operation(Event.Operation.REMOVE)
+                .build();
+        eventStorage.addEvent(event);
 	}
 }

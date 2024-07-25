@@ -81,11 +81,11 @@ public class UserRepository extends BaseRepository<User> {
 	}
 
 	public Boolean existFriend(Long userId, Long friendId) {
-		return findOne(EXIST_FRIEND_QUERY, userId, friendId).isPresent();
+		return exist(EXIST_FRIEND_QUERY, userId, friendId);
 	}
 
 	public void updateFriend(Long userId, Long friendId, Boolean confirmed) {
-		update(UPDATE_FRIEND_QUERY, friendId, userId, confirmed);
+		update(UPDATE_FRIEND_QUERY, confirmed, userId, friendId);
 	}
 
 	public void deleteFriend(Long userId, Long friendId) {

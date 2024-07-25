@@ -14,7 +14,8 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,10 +41,13 @@ public class FilmService {
 		return filmStorage.getFilms();
 	}
 
-	public Collection<Film> getPopular(int count) {
+	public Collection<Film> getPopularByYear(int count, Integer genreId, Integer year) {
 		Collection<Film> popularFilms = filmStorage.getFilms().stream()
+				.filter(film -> (genreId == null || film.getGenres().stream().anyMatch(genre -> genre.getId().equals(genreId))))
+				.filter(film -> (year == null || film.getReleaseDate().getYear() == year))
 				.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
 				.toList();
+
 		if (popularFilms.size() < count) count = popularFilms.size();
 		return popularFilms.stream().toList().subList(0, count);
 	}
@@ -66,8 +70,8 @@ public class FilmService {
 		return newFilm;
 	}
 
-	public void removeFilm(Long id) {
-		filmStorage.removeFilm(id);
+	public void deleteFilm(Long id) {
+		filmStorage.deleteFilm(id);
 	}
 
 	public void addLike(Long filmId, Long userId) {
@@ -99,6 +103,14 @@ public class FilmService {
 					.collect(Collectors.toList());
 		}
 
+	}
+
+	public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+		return filmStorage.getFilms().stream()
+				.filter(film -> film.getLikes().contains(userId)
+						&& film.getLikes().contains(friendId))
+				.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
+				.collect(Collectors.toList());
 	}
 
 
