@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
+import java.util.Comparator;
 
 @Service
 public class ReviewService {
@@ -35,7 +36,9 @@ public class ReviewService {
 		}
 		Collection<Review> reviews = reviewStorage.getReviews(filmId);
 		if (reviews.size() < count) count = reviews.size();
-		return reviews.stream().toList().subList(0, count);
+		return reviews.stream()
+				.sorted(Comparator.comparing(Review::getUseful, Comparator.reverseOrder()))
+				.toList().subList(0, count);
 	}
 
 	public Review addReview(Review review) {
