@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class ReviewRepository extends  BaseRepository<Review> {
+public class ReviewRepository extends BaseRepository<Review> {
 
 	public ReviewRepository(JdbcTemplate jdbc, ResultSetExtractor<List<Review>> extractor) {
 		super(jdbc, extractor);
@@ -42,7 +42,7 @@ public class ReviewRepository extends  BaseRepository<Review> {
 			"VALUES (?, ?, ?, ?)";
 
 	private static final String UPDATE_QUERY =
-			"UPDATE REVIEWS SET CONTENT = ?, POSITIVE = ?, USER_ID = ?, FILM_ID = ? WHERE REVIEW_ID = ?";
+			"UPDATE REVIEWS SET CONTENT = ?, POSITIVE = ? WHERE REVIEW_ID = ?";
 
 	private static final String DELETE_QUERY = "DELETE FROM REVIEWS WHERE REVIEW_ID = ?";
 
@@ -89,8 +89,6 @@ public class ReviewRepository extends  BaseRepository<Review> {
 				UPDATE_QUERY,
 				review.getContent(),
 				review.getIsPositive(),
-				review.getUserId(),
-				review.getFilmId(),
 				review.getReviewId()
 		);
 		return review;

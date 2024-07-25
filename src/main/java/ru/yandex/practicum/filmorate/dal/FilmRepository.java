@@ -13,14 +13,14 @@ public class FilmRepository extends BaseRepository<Film> {
 	private static final String FIND_ALL_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME FROM FILMS f " +
 			"LEFT JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
 			"LEFT JOIN (SELECT fg.FILM_ID, fg.GENRE_ID, g.NAME AS GENRE_NAME " +
-				"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
+			"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
 			"ON f.FILM_ID = gnr.FILM_ID " +
 			"LEFT JOIN LIKES l ON l.FILM_ID = f.FILM_ID";
 
 	private static final String FIND_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME FROM FILMS f " +
 			"LEFT JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
 			"LEFT JOIN (SELECT fg.FILM_ID, fg.GENRE_ID, g.NAME AS GENRE_NAME " +
-				"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
+			"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
 			"ON f.FILM_ID = gnr.FILM_ID " +
 			"LEFT JOIN LIKES l ON l.FILM_ID = f.FILM_ID " +
 			"WHERE f.FILM_ID = ?";
@@ -29,7 +29,7 @@ public class FilmRepository extends BaseRepository<Film> {
 			"VALUES (?, ?, ?, ?, ?)";
 
 	private static final String UPDATE_QUERY =
-			"UPDATE FILMS SET DESCRIPTION = ?, NAME = ?, RELEASE_DATE = ?, DURATION = ? WHERE FILM_ID = ?";
+			"UPDATE FILMS SET DESCRIPTION = ?, NAME = ?, RELEASE_DATE = ?, DURATION = ?, MPA_ID = ? WHERE FILM_ID = ?";
 
 	private static final String DELETE_QUERY = "DELETE FROM FILMS WHERE FILM_ID = ?";
 
@@ -40,17 +40,19 @@ public class FilmRepository extends BaseRepository<Film> {
 
 	private static final String INSERT_GENRE_QUERY = "INSERT INTO FILM_GENRES(FILM_ID, GENRE_ID) VALUES(?, ?)";
 
+	private static final String DELETE_GENRE_QUERY = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
+
 	private static final String FILMS_RECOMMENDED_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME " +
-					"FROM likes l " +
-					"JOIN films f ON f.film_id = l.film_id " +
-					"LEFT JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
-					"LEFT JOIN (SELECT fg.FILM_ID, fg.GENRE_ID, g.NAME AS GENRE_NAME " +
-					"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
-					"ON f.FILM_ID = gnr.FILM_ID " +
-					"WHERE l.user_id = (SELECT l2.user_id FROM likes l1 JOIN likes l2 ON l1.film_id = l2.film_id " +
-					"AND l1.user_id != l2.user_id WHERE l1.user_id = ? GROUP BY l2.user_id " +
-					"ORDER BY COUNT(*) DESC LIMIT 1) " +
-					"AND l.film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)";
+			"FROM likes l " +
+			"JOIN films f ON f.film_id = l.film_id " +
+			"LEFT JOIN MPA m ON f.MPA_ID = m.MPA_ID " +
+			"LEFT JOIN (SELECT fg.FILM_ID, fg.GENRE_ID, g.NAME AS GENRE_NAME " +
+			"FROM FILM_GENRES fg INNER JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID) gnr " +
+			"ON f.FILM_ID = gnr.FILM_ID " +
+			"WHERE l.user_id = (SELECT l2.user_id FROM likes l1 JOIN likes l2 ON l1.film_id = l2.film_id " +
+			"AND l1.user_id != l2.user_id WHERE l1.user_id = ? GROUP BY l2.user_id " +
+			"ORDER BY COUNT(*) DESC LIMIT 1) " +
+			"AND l.film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)";
 
 
 	public FilmRepository(JdbcTemplate jdbc, ResultSetExtractor<List<Film>> extractor) {
@@ -90,6 +92,7 @@ public class FilmRepository extends BaseRepository<Film> {
 				newFilm.getName(),
 				newFilm.getReleaseDate(),
 				newFilm.getDuration(),
+				newFilm.getMpa().getId(),
 				newFilm.getId()
 		);
 		return newFilm;
@@ -99,6 +102,9 @@ public class FilmRepository extends BaseRepository<Film> {
 		delete(DELETE_QUERY, id);
 	}
 
+	public void deleteGenres(Long filmId) {
+		delete(DELETE_GENRE_QUERY, filmId);
+	}
 
 	public void addLike(Long filmId, Long userId) {
 		simpleInsert(INSERT_LIKE_QUERY, filmId, userId);

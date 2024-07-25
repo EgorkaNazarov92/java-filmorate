@@ -19,7 +19,7 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmStorage {
 	private FilmRepository filmRepository;
 
-    private EventStorage eventStorage;
+	private EventStorage eventStorage;
 
 	@Override
 	public Film getFilm(Long id) {
@@ -39,7 +39,6 @@ public class FilmDbStorage implements FilmStorage {
 	public Film addFilm(Film film) {
 		Film newFilm = filmRepository.addFilm(film);
 		newFilm.getGenres()
-				.stream()
 				.forEach(genre -> filmRepository.addGenre(newFilm.getId(), genre.getId()));
 		return newFilm;
 	}
@@ -53,6 +52,10 @@ public class FilmDbStorage implements FilmStorage {
 	@Override
 	public Film changeFilm(Film film) {
 		getFilm(film.getId());
+		Film newFilm = filmRepository.changeFilm(film);
+		filmRepository.deleteGenres(film.getId());
+		film.getGenres()
+				.forEach(genre -> filmRepository.addGenre(newFilm.getId(), genre.getId()));
 		return filmRepository.changeFilm(film);
 	}
 
@@ -60,28 +63,28 @@ public class FilmDbStorage implements FilmStorage {
 	public void addLike(Long filmId, Long userId) {
 		getFilm(filmId);
 		filmRepository.addLike(filmId, userId);
-        Event event = Event.builder()
-                .userId(userId)
-                .entityId(filmId)
-                .timestamp(Instant.now().toEpochMilli())
-                .eventType(Event.EventType.LIKE)
-                .operation(Event.Operation.ADD)
-                .build();
-        eventStorage.addEvent(event);
+		Event event = Event.builder()
+				.userId(userId)
+				.entityId(filmId)
+				.timestamp(Instant.now().toEpochMilli())
+				.eventType(Event.EventType.LIKE)
+				.operation(Event.Operation.ADD)
+				.build();
+		eventStorage.addEvent(event);
 	}
 
 	@Override
 	public void deleteLike(Long filmId, Long userId) {
 		getFilm(filmId);
 		filmRepository.deleteLike(filmId, userId);
-        Event event = Event.builder()
-                .userId(userId)
-                .entityId(filmId)
-                .timestamp(Instant.now().toEpochMilli())
-                .eventType(Event.EventType.LIKE)
-                .operation(Event.Operation.REMOVE)
-                .build();
-        eventStorage.addEvent(event);
+		Event event = Event.builder()
+				.userId(userId)
+				.entityId(filmId)
+				.timestamp(Instant.now().toEpochMilli())
+				.eventType(Event.EventType.LIKE)
+				.operation(Event.Operation.REMOVE)
+				.build();
+		eventStorage.addEvent(event);
 	}
 
 	@Override
