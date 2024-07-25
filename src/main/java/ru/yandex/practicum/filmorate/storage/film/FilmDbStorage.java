@@ -57,10 +57,10 @@ public class FilmDbStorage implements FilmStorage {
 		Film newFilm = filmRepository.changeFilm(film);
 		filmRepository.deleteGenres(film.getId());
 		film.getGenres()
-				.forEach(genre -> filmRepository.addGenre(newFilm.getId(), genre.getId()));
+				.forEach(genre -> filmRepository.addGenre(film.getId(), genre.getId()));
 		filmRepository.deleteDirectors(film.getId());
 		film.getDirectors()
-				.forEach(director -> filmRepository.addDirector(newFilm.getId(), director.getId()));
+				.forEach(director -> filmRepository.addDirector(film.getId(), director.getId()));
 		return getFilm(film.getId());
 	}
 

@@ -46,11 +46,11 @@ public class FilmRepository extends BaseRepository<Film> {
 
 	private static final String INSERT_GENRE_QUERY = "INSERT INTO FILM_GENRES(FILM_ID, GENRE_ID) VALUES(?, ?)";
 
+	private static final String DELETE_GENRE_QUERY = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
+
 	private static final String INSERT_DIRECTOR_QUERY = "INSERT INTO FILM_DIRECTORS(FILM_ID, DIRECTOR_ID) VALUES(?, ?)";
 
-	private static final String DELETE_GENRE_QUERY = "DELETE FROM FILM_DIRECTORS WHERE FILM_ID = ?";
-
-	private static final String DELETE_DIRECTOR_QUERY = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
+	private static final String DELETE_DIRECTOR_QUERY = "DELETE FROM FILM_DIRECTORS WHERE FILM_ID = ?";
 
 	private static final String FILMS_RECOMMENDED_QUERY = "SELECT f.*, gnr.*, l.USER_ID, m.NAME AS MPA_NAME " +
 			"FROM likes l " +

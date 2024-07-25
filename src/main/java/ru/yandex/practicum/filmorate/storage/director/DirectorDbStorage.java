@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.DirectorRepository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.Collection;
@@ -17,7 +18,11 @@ public class DirectorDbStorage implements DirectorStorage {
 
 	@Override
 	public Optional<Director> getDirector(long id) {
-		return directorRepository.getDirector(id);
+		Optional<Director> director = directorRepository.getDirector(id);
+		if (director.isEmpty()) {
+			throw new NotFoundException("Режисер с id = " + id + " не найден");
+		}
+		return director;
 	}
 
 	@Override
