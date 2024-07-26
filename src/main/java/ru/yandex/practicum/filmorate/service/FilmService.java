@@ -19,8 +19,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -30,21 +30,21 @@ public class FilmService {
 
 	private final DirectorStorage directorStorage;
 
-    private final EventStorage eventStorage;
+	private final EventStorage eventStorage;
 
-    public FilmService(
-            @Qualifier("FilmDbStorage") FilmStorage filmStorage,
-            @Qualifier("UserDbStorage") UserStorage userStorage,
-            @Qualifier("DirectorDbStorage") DirectorStorage directorStorage,
-            EventStorage eventStorage
-    ) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-        this.directorStorage = directorStorage;
-        this.eventStorage = eventStorage;
-    }
+	public FilmService(
+			@Qualifier("FilmDbStorage") FilmStorage filmStorage,
+			@Qualifier("UserDbStorage") UserStorage userStorage,
+			@Qualifier("DirectorDbStorage") DirectorStorage directorStorage,
+			EventStorage eventStorage
+	) {
+		this.filmStorage = filmStorage;
+		this.userStorage = userStorage;
+		this.directorStorage = directorStorage;
+		this.eventStorage = eventStorage;
+	}
 
-    private static final LocalDate startReleaseDate = LocalDate
+	private static final LocalDate startReleaseDate = LocalDate
 			.parse("28.12.1895", DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 
 	private static final Logger log = LoggerFactory.getLogger(FilmController.class);
@@ -93,34 +93,34 @@ public class FilmService {
 
 	public void addLike(Long filmId, Long userId) {
 		userStorage.getUser(userId);
-        Film film = getFilm(filmId);
-        if (!film.getLikes().contains(userId)) {
-            filmStorage.addLike(filmId, userId);
-            Event event = Event.builder()
-                    .userId(userId)
-                    .entityId(filmId)
-                    .timestamp(Instant.now().toEpochMilli())
-                    .eventType(Event.EventType.LIKE)
-                    .operation(Event.Operation.ADD)
-                    .build();
-            eventStorage.addEvent(event);
-        }
+		Film film = getFilm(filmId);
+		if (!film.getLikes().contains(userId)) {
+			filmStorage.addLike(filmId, userId);
+			Event event = Event.builder()
+					.userId(userId)
+					.entityId(filmId)
+					.timestamp(Instant.now().toEpochMilli())
+					.eventType(Event.EventType.LIKE)
+					.operation(Event.Operation.ADD)
+					.build();
+			eventStorage.addEvent(event);
+		}
 	}
 
 	public void deleteLike(Long filmId, Long userId) {
 		userStorage.getUser(userId);
-        Film film = getFilm(filmId);
-        if (film.getLikes().contains(userId)) {
-            filmStorage.deleteLike(filmId, userId);
-            Event event = Event.builder()
-                    .userId(userId)
-                    .entityId(filmId)
-                    .timestamp(Instant.now().toEpochMilli())
-                    .eventType(Event.EventType.LIKE)
-                    .operation(Event.Operation.REMOVE)
-                    .build();
-            eventStorage.addEvent(event);
-        }
+		Film film = getFilm(filmId);
+		if (film.getLikes().contains(userId)) {
+			filmStorage.deleteLike(filmId, userId);
+			Event event = Event.builder()
+					.userId(userId)
+					.entityId(filmId)
+					.timestamp(Instant.now().toEpochMilli())
+					.eventType(Event.EventType.LIKE)
+					.operation(Event.Operation.REMOVE)
+					.build();
+			eventStorage.addEvent(event);
+		}
 	}
 
 	public Collection<Film> getSortedDirectorsFilms(Long directorId, String sortBy) {
@@ -169,25 +169,28 @@ public class FilmService {
 		}
 	}
 
-    public Collection<Film> search(String query, String by) {
-        List<String> acceptedValues = List.of("title", "director");
-        List<String> byList = new ArrayList<>();
-        if (by.contains(",")) {
-            String[] split = by.split(",");
-            for (String s : split) {
-                if (!s.isEmpty() && !s.isBlank() && acceptedValues.contains(s)) {
-                    byList.add(s);
-                } else {
-                    throw new ValidationException("Передан некорретный параметр by = " + s);
-                }
-            }
-        } else {
-            if (acceptedValues.contains(by)) {
-                byList.add(by);
-            } else {
-                throw new ValidationException("Передан некорретный параметр by = " + by);
-            }
-        }
-        return filmStorage.search(query, byList);
-    }
+	public Collection<Film> search(String query, String by) {
+		List<String> acceptedValues = List.of("title", "director");
+		List<String> byList = new ArrayList<>();
+		if (by.contains(",")) {
+			String[] split = by.split(",");
+			for (String s : split) {
+				if (!s.isEmpty() && !s.isBlank() && acceptedValues.contains(s)) {
+					byList.add(s);
+				} else {
+					throw new ValidationException("Передан некорретный параметр by = " + s);
+				}
+			}
+		} else {
+			if (acceptedValues.contains(by)) {
+				byList.add(by);
+			} else {
+				throw new ValidationException("Передан некорретный параметр by = " + by);
+			}
+		}
+		return filmStorage.search(query, byList)
+				.stream()
+				.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
+				.toList();
+	}
 }
