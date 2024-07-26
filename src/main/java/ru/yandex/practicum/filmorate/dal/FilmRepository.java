@@ -71,7 +71,7 @@ public class FilmRepository extends BaseRepository<Film> {
 
     private String getQueryForSearch(List<String> by) {
         String partOfNameQuery = "LOWER(f.NAME) LIKE LOWER(CONCAT('%', ?, '%'))";
-        String partOfDirectorQuery = "LOWER(f.DIRECTOR) LIKE LOWER(CONCAT('%', ?, '%'))";
+        String partOfDirectorQuery = "LOWER(dtr.DIRECTOR_NAME) LIKE LOWER(CONCAT('%', ?, '%'))";
         StringBuilder resultBy = new StringBuilder();
         by.forEach(i -> {
             if (i.equals("title")) {
@@ -162,6 +162,7 @@ public class FilmRepository extends BaseRepository<Film> {
 	}
 
     public List<Film> search(String query, List<String> searchBy) {
-        return findMany(getQueryForSearch(searchBy), query);
+        Object[] params = searchBy.stream().map(i -> query).toArray(String[]::new);
+        return findMany(getQueryForSearch(searchBy), params);
     }
 }
