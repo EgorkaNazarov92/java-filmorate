@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -24,11 +25,13 @@ public class UserService {
 
     private final EventStorage eventStorage;
 
-    private FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
 
-    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage,
-                       EventStorage eventStorage,
-                       @Qualifier("FilmDbStorage") FilmStorage filmStorage) {
+    public UserService(
+            @Qualifier("UserDbStorage") UserStorage userStorage,
+            EventStorage eventStorage,
+            @Qualifier("FilmDbStorage") FilmStorage filmStorage
+    ) {
         this.userStorage = userStorage;
         this.eventStorage = eventStorage;
         this.filmStorage = filmStorage;
@@ -86,6 +89,7 @@ public class UserService {
     }
 
     public Collection<Event> getEventsByUserId(Long userId) {
+        getUser(userId);
         return eventStorage.getEventsByUserId(userId);
     }
 
@@ -95,10 +99,26 @@ public class UserService {
 
     public void addFriend(Long userId, Long friendId) {
         userStorage.addFriend(userId, friendId);
+        Event event = Event.builder()
+                .userId(userId)
+                .entityId(friendId)
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.FRIEND)
+                .operation(Event.Operation.ADD)
+                .build();
+        eventStorage.addEvent(event);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
         userStorage.deleteFriend(userId, friendId);
+        Event event = Event.builder()
+                .userId(userId)
+                .entityId(friendId)
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.FRIEND)
+                .operation(Event.Operation.REMOVE)
+                .build();
+        eventStorage.addEvent(event);
     }
 
 

@@ -1,32 +1,42 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 
 @Service
 public class ReviewService {
-	@Autowired
-	@Qualifier("FilmDbStorage")
-	private FilmStorage filmStorage;
+	private final FilmStorage filmStorage;
 
-	@Autowired
-	@Qualifier("UserDbStorage")
-	private UserStorage userStorage;
+	private final UserStorage userStorage;
 
-	@Autowired
-	@Qualifier("ReviewDbStorage")
-	private ReviewStorage reviewStorage;
+	private final ReviewStorage reviewStorage;
 
-	public Review getReview(Long id) {
+    private final EventStorage eventStorage;
+
+    public ReviewService(
+            @Qualifier("FilmDbStorage") FilmStorage filmStorage,
+            @Qualifier("UserDbStorage") UserStorage userStorage,
+            @Qualifier("ReviewDbStorage") ReviewStorage reviewStorage,
+            EventStorage eventStorage
+    ) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+        this.reviewStorage = reviewStorage;
+        this.eventStorage = eventStorage;
+    }
+
+    public Review getReview(Long id) {
 		return reviewStorage.getReview(id);
 	}
 
@@ -45,20 +55,48 @@ public class ReviewService {
 		validateReview(review);
 		filmStorage.getFilm(review.getFilmId());
 		userStorage.getUser(review.getUserId());
-		return reviewStorage.addReview(review);
+        Review result = reviewStorage.addReview(review);
+        Event event = Event.builder()
+                .userId(result.getUserId())
+                .entityId(result.getReviewId())
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.REVIEW)
+                .operation(Event.Operation.ADD)
+                .build();
+        eventStorage.addEvent(event);
+        return result;
 	}
 
 	public Review updateReview(Review review) {
 		validateReview(review);
 		filmStorage.getFilm(review.getFilmId());
 		userStorage.getUser(review.getUserId());
-		return reviewStorage.updateReview(review);
-	}
+        reviewStorage.updateReview(review);
+        Review updated = getReview(review.getReviewId());
+        Event event = Event.builder()
+                .userId(updated.getUserId())
+                .entityId(updated.getReviewId())
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.REVIEW)
+                .operation(Event.Operation.UPDATE)
+                .build();
+        eventStorage.addEvent(event);
+        return updated;
+    }
 
 	public void addLike(Long id, Long userId) {
+        Review review = getReview(id);
 		userStorage.getUser(userId);
 		reviewStorage.deleteDislike(id, userId);
 		reviewStorage.addLike(id, userId);
+        Event event = Event.builder()
+                .userId(userId)
+                .entityId(review.getReviewId())
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.LIKE)
+                .operation(Event.Operation.ADD)
+                .build();
+        eventStorage.addEvent(event);
 	}
 
 	public void addDislike(Long id, Long userId) {
@@ -68,7 +106,16 @@ public class ReviewService {
 	}
 
 	public void deleteReview(Long id) {
-		reviewStorage.deleteReview(id);
+        Review review = getReview(id);
+        reviewStorage.deleteReview(id);
+        Event event = Event.builder()
+                .userId(review.getUserId())
+                .entityId(review.getReviewId())
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.REVIEW)
+                .operation(Event.Operation.REMOVE)
+                .build();
+        eventStorage.addEvent(event);
 	}
 
 	public void deleteLike(Long id, Long userId) {

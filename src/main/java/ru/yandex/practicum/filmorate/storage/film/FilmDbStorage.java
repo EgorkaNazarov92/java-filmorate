@@ -5,11 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -19,9 +16,7 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmStorage {
 	private FilmRepository filmRepository;
 
-	private EventStorage eventStorage;
-
-	@Override
+    @Override
 	public Film getFilm(Long id) {
 		Optional<Film> film = filmRepository.getFilm(id);
 		if (film.isEmpty()) {
@@ -54,7 +49,7 @@ public class FilmDbStorage implements FilmStorage {
 	@Override
 	public Film changeFilm(Film film) {
 		getFilm(film.getId());
-		Film newFilm = filmRepository.changeFilm(film);
+		filmRepository.changeFilm(film);
 		filmRepository.deleteGenres(film.getId());
 		film.getGenres()
 				.forEach(genre -> filmRepository.addGenre(film.getId(), genre.getId()));
@@ -68,28 +63,12 @@ public class FilmDbStorage implements FilmStorage {
 	public void addLike(Long filmId, Long userId) {
 		getFilm(filmId);
 		filmRepository.addLike(filmId, userId);
-		Event event = Event.builder()
-				.userId(userId)
-				.entityId(filmId)
-				.timestamp(Instant.now().toEpochMilli())
-				.eventType(Event.EventType.LIKE)
-				.operation(Event.Operation.ADD)
-				.build();
-		eventStorage.addEvent(event);
 	}
 
 	@Override
 	public void deleteLike(Long filmId, Long userId) {
 		getFilm(filmId);
 		filmRepository.deleteLike(filmId, userId);
-		Event event = Event.builder()
-				.userId(userId)
-				.entityId(filmId)
-				.timestamp(Instant.now().toEpochMilli())
-				.eventType(Event.EventType.LIKE)
-				.operation(Event.Operation.REMOVE)
-				.build();
-		eventStorage.addEvent(event);
 	}
 
 	@Override
