@@ -2,32 +2,49 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 import java.util.List;
 
 @Service
 public class FilmService {
-	@Autowired
-	@Qualifier("FilmDbStorage")
-	private FilmStorage filmStorage;
-	@Autowired
-	@Qualifier("UserDbStorage")
-	private UserStorage userStorage;
+	private final FilmStorage filmStorage;
 
-	private static final LocalDate startReleaseDate = LocalDate
+	private final UserStorage userStorage;
+
+	private final DirectorStorage directorStorage;
+
+    private final EventStorage eventStorage;
+
+    public FilmService(
+            @Qualifier("FilmDbStorage") FilmStorage filmStorage,
+            @Qualifier("UserDbStorage") UserStorage userStorage,
+            @Qualifier("DirectorDbStorage") DirectorStorage directorStorage,
+            EventStorage eventStorage
+    ) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+        this.directorStorage = directorStorage;
+        this.eventStorage = eventStorage;
+    }
+
+    private static final LocalDate startReleaseDate = LocalDate
 			.parse("28.12.1895", DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 
 	private static final Logger log = LoggerFactory.getLogger(FilmController.class);
@@ -41,10 +58,13 @@ public class FilmService {
 		return filmStorage.getFilms();
 	}
 
-	public Collection<Film> getPopular(int count) {
+	public Collection<Film> getPopularByYear(int count, Integer genreId, Integer year) {
 		Collection<Film> popularFilms = filmStorage.getFilms().stream()
+				.filter(film -> (genreId == null || film.getGenres().stream().anyMatch(genre -> genre.getId().equals(genreId))))
+				.filter(film -> (year == null || film.getReleaseDate().getYear() == year))
 				.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
 				.toList();
+
 		if (popularFilms.size() < count) count = popularFilms.size();
 		return popularFilms.stream().toList().subList(0, count);
 	}
@@ -67,18 +87,66 @@ public class FilmService {
 		return newFilm;
 	}
 
-	public void removeFilm(Long id) {
-		filmStorage.removeFilm(id);
+	public void deleteFilm(Long id) {
+		filmStorage.deleteFilm(id);
 	}
 
 	public void addLike(Long filmId, Long userId) {
 		userStorage.getUser(userId);
-		filmStorage.addLike(filmId, userId);
+        Film film = getFilm(filmId);
+        if (!film.getLikes().contains(userId)) {
+            filmStorage.addLike(filmId, userId);
+            Event event = Event.builder()
+                    .userId(userId)
+                    .entityId(filmId)
+                    .timestamp(Instant.now().toEpochMilli())
+                    .eventType(Event.EventType.LIKE)
+                    .operation(Event.Operation.ADD)
+                    .build();
+            eventStorage.addEvent(event);
+        }
 	}
 
 	public void deleteLike(Long filmId, Long userId) {
 		userStorage.getUser(userId);
-		filmStorage.deleteLike(filmId, userId);
+        Film film = getFilm(filmId);
+        if (film.getLikes().contains(userId)) {
+            filmStorage.deleteLike(filmId, userId);
+            Event event = Event.builder()
+                    .userId(userId)
+                    .entityId(filmId)
+                    .timestamp(Instant.now().toEpochMilli())
+                    .eventType(Event.EventType.LIKE)
+                    .operation(Event.Operation.REMOVE)
+                    .build();
+            eventStorage.addEvent(event);
+        }
+	}
+
+	public Collection<Film> getSortedDirectorsFilms(Long directorId, String sortBy) {
+		directorStorage.getDirector(directorId);
+		if (sortBy.equals("year")) {
+			return filmStorage.getFilms().stream()
+					.filter(film -> film.getDirectors().stream()
+							.anyMatch(director -> director.getId().equals(directorId)))
+					.sorted(Comparator.comparing(film -> film.getReleaseDate().getYear()))
+					.collect(Collectors.toList());
+		} else {
+			return filmStorage.getFilms().stream()
+					.filter(film -> film.getDirectors().stream()
+							.anyMatch(director -> director.getId().equals(directorId)))
+					.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
+					.collect(Collectors.toList());
+		}
+
+	}
+
+	public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+		return filmStorage.getFilms().stream()
+				.filter(film -> film.getLikes().contains(userId)
+						&& film.getLikes().contains(friendId))
+				.sorted(Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder()))
+				.collect(Collectors.toList());
 	}
 
 

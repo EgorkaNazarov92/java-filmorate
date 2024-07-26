@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
@@ -13,11 +13,11 @@ import java.util.Optional;
 
 @Component
 @Qualifier("FilmDbStorage")
+@AllArgsConstructor
 public class FilmDbStorage implements FilmStorage {
-	@Autowired
 	private FilmRepository filmRepository;
 
-	@Override
+    @Override
 	public Film getFilm(Long id) {
 		Optional<Film> film = filmRepository.getFilm(id);
 		if (film.isEmpty()) {
@@ -35,21 +35,29 @@ public class FilmDbStorage implements FilmStorage {
 	public Film addFilm(Film film) {
 		Film newFilm = filmRepository.addFilm(film);
 		newFilm.getGenres()
-				.stream()
 				.forEach(genre -> filmRepository.addGenre(newFilm.getId(), genre.getId()));
+		newFilm.getDirectors()
+				.forEach(director -> filmRepository.addDirector(newFilm.getId(), director.getId()));
 		return newFilm;
 	}
 
 	@Override
-	public void removeFilm(Long id) {
+	public void deleteFilm(Long id) {
 		getFilm(id);
-		filmRepository.removeFilm(id);
+		filmRepository.deleteFilm(id);
 	}
 
 	@Override
 	public Film changeFilm(Film film) {
 		getFilm(film.getId());
-		return filmRepository.changeFilm(film);
+		filmRepository.changeFilm(film);
+		filmRepository.deleteGenres(film.getId());
+		film.getGenres()
+				.forEach(genre -> filmRepository.addGenre(film.getId(), genre.getId()));
+		filmRepository.deleteDirectors(film.getId());
+		film.getDirectors()
+				.forEach(director -> filmRepository.addDirector(film.getId(), director.getId()));
+		return getFilm(film.getId());
 	}
 
 	@Override
@@ -62,6 +70,11 @@ public class FilmDbStorage implements FilmStorage {
 	public void deleteLike(Long filmId, Long userId) {
 		getFilm(filmId);
 		filmRepository.deleteLike(filmId, userId);
+	}
+
+	@Override
+	public Collection<Film> getRecommendedFilms(Long userId) {
+		return filmRepository.getRecommendedFilms(userId);
 	}
 
     @Override

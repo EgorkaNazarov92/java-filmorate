@@ -7,8 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.context.ContextConfiguration;
+import ru.yandex.practicum.filmorate.dal.DirectorRepository;
+import ru.yandex.practicum.filmorate.dal.EventRepository;
 import ru.yandex.practicum.filmorate.dal.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dal.extractor.DirectorExtractor;
+import ru.yandex.practicum.filmorate.dal.extractor.EventExtractor;
 import ru.yandex.practicum.filmorate.dal.extractor.FilmExtractor;
 import ru.yandex.practicum.filmorate.dal.extractor.UserExtractor;
 import ru.yandex.practicum.filmorate.dto.UserDto;
@@ -17,6 +21,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.event.EventStorageImpl;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
@@ -33,7 +39,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @ContextConfiguration(classes = {UserRepository.class, UserDbStorage.class, UserExtractor.class, UserService.class,
-	FilmRepository.class, FilmDbStorage.class, FilmExtractor.class, FilmService.class})
+		FilmRepository.class, FilmDbStorage.class, FilmExtractor.class, FilmService.class, EventStorageImpl.class,
+		EventRepository.class, EventExtractor.class, DirectorDbStorage.class, DirectorRepository.class,
+		DirectorExtractor.class})
 class FilmorateApplicationTests {
 
 	private final FilmService filmService;

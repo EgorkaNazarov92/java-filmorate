@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -24,6 +26,11 @@ public class UserController {
 	@GetMapping
 	public Collection<UserDto> getUsers() {
 		return userService.getUsers();
+	}
+
+	@GetMapping("/{id}")
+	public User getUser(@PathVariable("id") Long userId) {
+		return userService.getUser(userId);
 	}
 
 	@GetMapping("/{id}/friends")
@@ -46,6 +53,11 @@ public class UserController {
 		return userService.changeUser(user);
 	}
 
+	@GetMapping("/{id}/recommendations")
+	public Collection<Film> getRecommendations(@PathVariable("id") Long userId) {
+		return userService.getRecommendationFilms(userId);
+	}
+
 	@PutMapping("/{id}/friends/{friendId}")
 	public void addFriend(@PathVariable("id") Long userId, @PathVariable("friendId") Long friendId) {
 		userService.addFriend(userId, friendId);
@@ -54,5 +66,15 @@ public class UserController {
 	@DeleteMapping("/{id}/friends/{friendId}")
 	public void deleteFriend(@PathVariable("id") Long userId, @PathVariable("friendId") Long friendId) {
 		userService.deleteFriend(userId, friendId);
+	}
+
+	@DeleteMapping("/{id}")
+	public void deleteUser(@PathVariable("id") Long userId) {
+		userService.deleteUser(userId);
+	}
+
+	@GetMapping("/{id}/feed")
+	public Collection<Event> getEvents(@PathVariable("id") Long userId) {
+		return userService.getEventsByUserId(userId);
 	}
 }

@@ -12,13 +12,15 @@ public interface FilmStorage {
 
 	Film addFilm(Film film);
 
-	void removeFilm(Long id);
+	void deleteFilm(Long id);
 
 	Film changeFilm(Film film);
 
 	void addLike(Long filmId, Long userId);
 
 	void deleteLike(Long filmId, Long userId);
+
+	Collection<Film> getRecommendedFilms(Long userId);
 
     Collection<Film> search(String query, List<String> by);
 }
