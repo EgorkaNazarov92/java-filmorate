@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -92,36 +93,36 @@ public class FilmService {
 	}
 
 	public void addLike(Long filmId, Long userId) {
-		userStorage.getUser(userId);
-		Film film = getFilm(filmId);
+        User user = userStorage.getUser(userId);
+        Film film = getFilm(filmId);
 		if (!film.getLikes().contains(userId)) {
 			filmStorage.addLike(filmId, userId);
-			Event event = Event.builder()
-					.userId(userId)
-					.entityId(filmId)
-					.timestamp(Instant.now().toEpochMilli())
-					.eventType(Event.EventType.LIKE)
-					.operation(Event.Operation.ADD)
-					.build();
-			eventStorage.addEvent(event);
 		}
-	}
+        Event event = Event.builder()
+                .userId(user.getId())
+                .entityId(film.getId())
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.LIKE)
+                .operation(Event.Operation.ADD)
+                .build();
+        eventStorage.addEvent(event);
+    }
 
 	public void deleteLike(Long filmId, Long userId) {
-		userStorage.getUser(userId);
-		Film film = getFilm(filmId);
+        User user = userStorage.getUser(userId);
+        Film film = getFilm(filmId);
 		if (film.getLikes().contains(userId)) {
 			filmStorage.deleteLike(filmId, userId);
-			Event event = Event.builder()
-					.userId(userId)
-					.entityId(filmId)
-					.timestamp(Instant.now().toEpochMilli())
-					.eventType(Event.EventType.LIKE)
-					.operation(Event.Operation.REMOVE)
-					.build();
-			eventStorage.addEvent(event);
 		}
-	}
+        Event event = Event.builder()
+                .userId(user.getId())
+                .entityId(film.getId())
+                .timestamp(Instant.now().toEpochMilli())
+                .eventType(Event.EventType.LIKE)
+                .operation(Event.Operation.REMOVE)
+                .build();
+        eventStorage.addEvent(event);
+    }
 
 	public Collection<Film> getSortedDirectorsFilms(Long directorId, String sortBy) {
 		directorStorage.getDirector(directorId);

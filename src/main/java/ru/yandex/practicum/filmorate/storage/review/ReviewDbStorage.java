@@ -23,7 +23,7 @@ public class ReviewDbStorage implements ReviewStorage {
 	public Review getReview(Long id) {
 		Optional<Review> review = reviewRepository.getReview(id);
 		if (review.isEmpty()) {
-			throw new NotFoundException("Фильм с id = " + id + " не найден");
+			throw new NotFoundException("Отзыв с id = " + id + " не найден");
 		}
 		return review.get();
 	}

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
@@ -53,11 +54,11 @@ public class ReviewService {
 
 	public Review addReview(Review review) {
 		validateReview(review);
-		filmStorage.getFilm(review.getFilmId());
-		userStorage.getUser(review.getUserId());
+        filmStorage.getFilm(review.getFilmId());
+        User user = userStorage.getUser(review.getUserId());
         Review result = reviewStorage.addReview(review);
         Event event = Event.builder()
-                .userId(result.getUserId())
+                .userId(user.getId())
                 .entityId(result.getReviewId())
                 .timestamp(Instant.now().toEpochMilli())
                 .eventType(Event.EventType.REVIEW)
@@ -70,7 +71,7 @@ public class ReviewService {
 	public Review updateReview(Review review) {
 		validateReview(review);
 		filmStorage.getFilm(review.getFilmId());
-		userStorage.getUser(review.getUserId());
+        userStorage.getUser(review.getUserId());
         reviewStorage.updateReview(review);
         Review updated = getReview(review.getReviewId());
         Event event = Event.builder()
@@ -85,18 +86,10 @@ public class ReviewService {
     }
 
 	public void addLike(Long id, Long userId) {
-        Review review = getReview(id);
+        getReview(id);
 		userStorage.getUser(userId);
 		reviewStorage.deleteDislike(id, userId);
 		reviewStorage.addLike(id, userId);
-        Event event = Event.builder()
-                .userId(userId)
-                .entityId(review.getReviewId())
-                .timestamp(Instant.now().toEpochMilli())
-                .eventType(Event.EventType.LIKE)
-                .operation(Event.Operation.ADD)
-                .build();
-        eventStorage.addEvent(event);
 	}
 
 	public void addDislike(Long id, Long userId) {
@@ -107,9 +100,10 @@ public class ReviewService {
 
 	public void deleteReview(Long id) {
         Review review = getReview(id);
+        User user = userStorage.getUser(review.getUserId());
         reviewStorage.deleteReview(id);
         Event event = Event.builder()
-                .userId(review.getUserId())
+                .userId(user.getId())
                 .entityId(review.getReviewId())
                 .timestamp(Instant.now().toEpochMilli())
                 .eventType(Event.EventType.REVIEW)

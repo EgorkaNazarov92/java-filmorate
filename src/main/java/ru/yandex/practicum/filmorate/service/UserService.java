@@ -99,9 +99,11 @@ public class UserService {
 
     public void addFriend(Long userId, Long friendId) {
         userStorage.addFriend(userId, friendId);
+        User user = getUser(userId);
+        User friend = getUser(friendId);
         Event event = Event.builder()
-                .userId(userId)
-                .entityId(friendId)
+                .userId(user.getId())
+                .entityId(friend.getId())
                 .timestamp(Instant.now().toEpochMilli())
                 .eventType(Event.EventType.FRIEND)
                 .operation(Event.Operation.ADD)
@@ -110,10 +112,12 @@ public class UserService {
     }
 
     public void deleteFriend(Long userId, Long friendId) {
+        User user = getUser(userId);
+        User friend = getUser(friendId);
         userStorage.deleteFriend(userId, friendId);
         Event event = Event.builder()
-                .userId(userId)
-                .entityId(friendId)
+                .userId(user.getId())
+                .entityId(friend.getId())
                 .timestamp(Instant.now().toEpochMilli())
                 .eventType(Event.EventType.FRIEND)
                 .operation(Event.Operation.REMOVE)
