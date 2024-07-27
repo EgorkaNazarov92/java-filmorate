@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dal.FilmRepository;
+import ru.yandex.practicum.filmorate.dao.FilmRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -15,7 +15,7 @@ import java.util.Optional;
 @Qualifier("FilmDbStorage")
 @AllArgsConstructor
 public class FilmDbStorage implements FilmStorage {
-	private FilmRepository filmRepository;
+	private final FilmRepository filmRepository;
 
     @Override
 	public Film getFilm(Long id) {

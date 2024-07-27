@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.storage.review;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dal.EventRepository;
-import ru.yandex.practicum.filmorate.dal.ReviewRepository;
+import ru.yandex.practicum.filmorate.dao.EventRepository;
+import ru.yandex.practicum.filmorate.dao.ReviewRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
@@ -15,9 +15,9 @@ import java.util.Optional;
 @Qualifier("ReviewDbStorage")
 @AllArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
-	ReviewRepository reviewRepository;
+	private final ReviewRepository reviewRepository;
 
-	EventRepository eventRepository;
+	private EventRepository eventRepository;
 
 	@Override
 	public Review getReview(Long id) {

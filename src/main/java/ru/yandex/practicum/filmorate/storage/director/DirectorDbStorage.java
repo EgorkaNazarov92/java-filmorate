@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.director;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dal.DirectorRepository;
+import ru.yandex.practicum.filmorate.dao.DirectorRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 

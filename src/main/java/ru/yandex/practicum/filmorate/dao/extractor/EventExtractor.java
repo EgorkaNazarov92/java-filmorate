@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.extractor;
+package ru.yandex.practicum.filmorate.dao.extractor;
 
 import lombok.NonNull;
 import org.springframework.dao.DataAccessException;

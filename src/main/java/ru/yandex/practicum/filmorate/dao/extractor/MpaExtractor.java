@@ -1,9 +1,9 @@
-package ru.yandex.practicum.filmorate.dal.extractor;
+package ru.yandex.practicum.filmorate.dao.extractor;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,22 +11,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class GenreExtractor implements ResultSetExtractor<List<Genre>> {
+public class MpaExtractor implements ResultSetExtractor<List<Mpa>> {
 
 	@Override
-	public List<Genre> extractData(ResultSet rs)
+	public List<Mpa> extractData(ResultSet rs)
 			throws SQLException, DataAccessException {
-		List<Genre> genres = new ArrayList<>();
+		List<Mpa> mpas = new ArrayList<>();
 
 		//итерируемся по всем строкам ResultSet
 		while (rs.next()) {
-			Genre genre = new Genre();
-			genre.setId(rs.getInt("GENRE_ID"));
-			genre.setName(rs.getString("NAME"));
+			Mpa mpa = new Mpa();
+			mpa.setId(rs.getInt("MPA_ID"));
+			mpa.setName(rs.getString("NAME"));
 
-			genres.add(genre);
+			mpas.add(mpa);
 		}
 
-		return genres;
+		return mpas;
 	}
 }

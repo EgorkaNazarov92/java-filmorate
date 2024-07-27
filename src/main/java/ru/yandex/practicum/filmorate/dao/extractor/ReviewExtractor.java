@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.extractor;
+package ru.yandex.practicum.filmorate.dao.extractor;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;

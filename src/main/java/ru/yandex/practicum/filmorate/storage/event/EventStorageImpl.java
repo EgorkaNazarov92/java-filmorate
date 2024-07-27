@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.event;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dal.EventRepository;
+import ru.yandex.practicum.filmorate.dao.EventRepository;
 import ru.yandex.practicum.filmorate.model.Event;
 
 import java.util.Collection;

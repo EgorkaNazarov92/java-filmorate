@@ -13,16 +13,17 @@ import java.util.Optional;
 
 @Service
 public class DirectorService {
+
 	@Autowired
 	@Qualifier("DirectorDbStorage")
 	private DirectorStorage directorStorage;
 
-	public Optional<Director> getDirector(long id) {
+	public Director getDirector(long id) {
 		Optional<Director> director = directorStorage.getDirector(id);
 		if (director.isEmpty()) {
 			throw new NotFoundException("Director с id = " + id + " не найден");
 		}
-		return director;
+		return director.orElseThrow();
 	}
 
 	public Collection<Director> getDirectors() {

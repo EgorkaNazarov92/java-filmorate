@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Event {
-    private long eventId;
-    private long userId;
-    private long entityId;
-    private long timestamp;
+    private Long eventId;
+    private Long userId;
+    private Long entityId;
+    private Long timestamp;
     private EventType eventType;
     private Operation operation;
 

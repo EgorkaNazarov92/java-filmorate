@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -15,7 +15,7 @@ import java.util.Optional;
 @Qualifier("UserDbStorage")
 @AllArgsConstructor
 public class UserDbStorage implements UserStorage {
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
 
     public User getUser(Long id) {
 		Optional<User> user = userRepository.getUser(id);
