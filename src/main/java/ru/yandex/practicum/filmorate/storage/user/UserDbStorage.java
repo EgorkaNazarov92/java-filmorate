@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -13,11 +13,11 @@ import java.util.Optional;
 
 @Component
 @Qualifier("UserDbStorage")
+@AllArgsConstructor
 public class UserDbStorage implements UserStorage {
-	@Autowired
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
 
-	public User getUser(Long id) {
+    public User getUser(Long id) {
 		Optional<User> user = userRepository.getUser(id);
 		if (user.isEmpty()) {
 			throw new NotFoundException("Пользователь с id = " + id + " не найден");
@@ -51,7 +51,7 @@ public class UserDbStorage implements UserStorage {
 	}
 
 	@Override
-	public void removeUser(Long id) {
+	public void deleteUser(Long id) {
 		getUser(id);
 		userRepository.delete(id);
 	}
